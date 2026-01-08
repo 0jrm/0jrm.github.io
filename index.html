@@ -3,305 +3,199 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Oceanography + computational science. Research, projects, and writing." />
-  <meta name="theme-color" content="#0b0f19" />
-  <title>Jose Miranda · Oceanography × Computational Science</title>
+  <meta name="description" content="Jose Miranda — Oceanography & Computational Science. Research, software, and selected work." />
+  <title>Jose Miranda</title>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Jose Miranda · Oceanography × Computational Science" />
-  <meta property="og:description" content="Oceanography + computational science. Research, projects, and writing." />
+  <meta property="og:title" content="Jose Miranda" />
+  <meta property="og:description" content="Oceanography & Computational Science — research, software, selected work." />
   <meta property="og:type" content="website" />
 
-  <link rel="preconnect" href="https://api.github.com" />
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cpath fill='%2388a6ff' d='M48 8l10 28h30L64 54l10 34-26-18-26 18 10-34L8 36h30z'/%3E%3C/svg%3E" />
-
-  <script>
-    // Prevent theme-flash: apply saved theme ASAP.
-    (function () {
-      const saved = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const theme = saved || (prefersDark ? "dark" : "light");
-      document.documentElement.dataset.theme = theme;
-    })();
-  </script>
 </head>
 
 <body>
-  <a class="skip" href="#content">Skip to content</a>
-
-  <header class="topbar">
-    <div class="container topbar__inner">
-      <a class="brand" href="#top" aria-label="Home">
-        <span class="brand__mark" aria-hidden="true">◎</span>
-        <span class="brand__text">0jrm</span>
+  <header class="header">
+    <div class="wrap header__inner">
+      <a class="wordmark" href="#top" aria-label="Home">
+        <span class="wordmark__dot" aria-hidden="true"></span>
+        <span class="wordmark__text">Jose Miranda</span>
       </a>
 
       <nav class="nav" aria-label="Primary">
-        <a href="#about">About</a>
-        <a href="#work">Work</a>
-        <a href="#repos">Code</a>
+        <a href="#research">Research</a>
+        <a href="#work">Selected</a>
+        <a href="#code">Code</a>
         <a href="#contact">Contact</a>
       </nav>
 
-      <div class="topbar__actions">
-        <button class="iconbtn" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
-          <span class="iconbtn__icon" aria-hidden="true">◐</span>
-        </button>
-        <a class="btn btn--ghost" href="https://github.com/0jrm" target="_blank" rel="noreferrer">
-          GitHub
-          <span aria-hidden="true">↗</span>
-        </a>
+      <div class="header__links">
+        <a class="link" href="https://github.com/0jrm" target="_blank" rel="noreferrer">GitHub</a>
+        <!-- Add when you have them -->
+        <!-- <a class="link" href="https://scholar.google.com/citations?user=XXXX" target="_blank" rel="noreferrer">Scholar</a> -->
+        <!-- <a class="link" href="https://www.linkedin.com/in/XXXX" target="_blank" rel="noreferrer">LinkedIn</a> -->
+        <a class="btn" href="assets/JoseMiranda_CV.pdf" target="_blank" rel="noreferrer">CV</a>
       </div>
     </div>
   </header>
 
-  <main id="content">
-    <section class="hero" id="top">
-      <div class="container hero__grid">
-        <div class="hero__copy">
-          <p class="kicker">Oceanography · Computational Science</p>
-          <h1 class="title">
-            I build tools for understanding complex systems—
-            <span class="title__accent">from ocean dynamics to ML pipelines.</span>
-          </h1>
-          <p class="lede">
-            PhD student working at the intersection of physical science, computation, and pragmatic engineering.
-            I like reproducible research, clean interfaces, and fast experiments.
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero__inner">
+        <div class="hero__left">
+          <h1 class="title">Oceanography · Computational Science</h1>
+          <p class="subtitle">
+            PhD student building reproducible models and tools for scientific inference.
           </p>
 
-          <div class="hero__cta">
-            <a class="btn" href="#repos">Explore latest code</a>
-            <a class="btn btn--ghost" href="#contact">Get in touch</a>
+          <div class="meta">
+            <span class="meta__item">Florida State University</span>
+            <span class="meta__sep" aria-hidden="true">·</span>
+            <span class="meta__item">Tallahassee, FL</span>
           </div>
 
-          <div class="hero__meta">
-            <div class="pill" role="note">
-              <span class="dot" aria-hidden="true"></span>
-              Currently: research + software, often in Python
-            </div>
-            <div class="pill" role="note">
-              <span class="dot dot--alt" aria-hidden="true"></span>
-              Focus: modeling, data, ML, visualization
-            </div>
+          <div class="cta">
+            <a class="btn" href="#contact">Email</a>
+            <a class="btn btn--ghost" href="#work">Selected work</a>
           </div>
         </div>
 
-        <div class="hero__card" aria-label="Profile card">
-          <div class="profile">
-            <div class="avatar" aria-hidden="true">
-              <!-- Replace with your own image later if you want:
-                   <img src="assets/img/avatar.jpg" alt="Portrait of Jose Miranda"> -->
-              <span class="avatar__initials">JM</span>
-              <span class="avatar__ring" aria-hidden="true"></span>
-            </div>
-
-            <div class="profile__text">
-              <h2 class="profile__name">Jose Miranda</h2>
-              <p class="profile__role">Oceanographer · PhD student</p>
-              <p class="profile__blurb">
-                I care about scientific clarity and engineering that doesn’t rot.
-              </p>
-            </div>
-
-            <div class="profile__links">
-              <a class="link" href="https://github.com/0jrm" target="_blank" rel="noreferrer">github.com/0jrm</a>
-              <a class="link" href="#contact">email / socials</a>
-            </div>
-          </div>
-
-          <div class="mini">
-            <div class="mini__item">
-              <div class="mini__label">Stack</div>
-              <div class="mini__value">Python · Jupyter · HPC · Git</div>
-            </div>
-            <div class="mini__item">
-              <div class="mini__label">Interests</div>
-              <div class="mini__value">models · data · ML · oceans</div>
-            </div>
+        <div class="hero__right" aria-label="Quick focus areas">
+          <div class="panel">
+            <div class="panel__kicker">Focus</div>
+            <ul class="bullets">
+              <li>Geophysical fluid dynamics & ocean modeling</li>
+              <li>Data analysis, inverse problems, uncertainty</li>
+              <li>Scientific software, ML where it genuinely helps</li>
+            </ul>
           </div>
         </div>
-      </div>
-
-      <div class="hero__backdrop" aria-hidden="true">
-        <div class="glow glow--a"></div>
-        <div class="glow glow--b"></div>
-        <div class="gridlines"></div>
       </div>
     </section>
 
-    <section class="section" id="about">
-      <div class="container">
-        <header class="section__head">
-          <h2>About</h2>
-          <p>
-            I work on computational approaches to scientific questions—where the hard part is usually
-            turning messy reality into a model you can actually interrogate.
-          </p>
-        </header>
-
-        <div class="cards">
-          <article class="card">
-            <h3>Research</h3>
-            <p>
-              Physical systems, numerical methods, and interpretable analysis.
-              I’m happiest when a result is both correct <em>and</em> explainable.
+    <section class="section" id="research">
+      <div class="wrap">
+        <h2 class="h2">Research</h2>
+        <div class="grid">
+          <div class="block">
+            <h3 class="h3">What I do</h3>
+            <p class="p">
+              I work on computational methods for extracting structure from messy physical data—especially
+              in ocean and environmental systems. My bias is toward methods that are interpretable,
+              validated, and easy to reproduce.
             </p>
-          </article>
+          </div>
 
-          <article class="card">
-            <h3>Engineering</h3>
-            <p>
-              Small, sharp tools over sprawling frameworks. Reproducible workflows, sane interfaces,
-              and code that survives contact with future you.
+          <div class="block">
+            <h3 class="h3">What I’m looking for</h3>
+            <p class="p">
+              Research internships, collaborations, and roles that value rigorous modeling, careful evaluation,
+              and engineering that survives beyond a paper deadline.
             </p>
-          </article>
-
-          <article class="card">
-            <h3>Teaching & writing</h3>
-            <p>
-              I like making complicated ideas feel obvious—without making them wrong.
-              Notes, notebooks, and project write-ups live on GitHub.
-            </p>
-          </article>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="section" id="work">
-      <div class="container">
-        <header class="section__head">
-          <h2>Selected work</h2>
-          <p>Curated highlights. Edit these cards to match what you want to foreground.</p>
-        </header>
-
-        <div class="grid2">
-          <article class="feature">
-            <div class="feature__tag">Project</div>
-            <h3>NeSPReSO / NeSPReSO2</h3>
-            <p>
-              Tools around scientific workflows and modeling. Built for iteration speed, clarity, and
-              reproducibility.
-            </p>
-            <div class="feature__actions">
-              <a class="btn btn--ghost" href="https://github.com/0jrm" target="_blank" rel="noreferrer">See repos ↗</a>
-            </div>
-          </article>
-
-          <article class="feature">
-            <div class="feature__tag">Notes</div>
-            <h3>ML Papers, explained</h3>
-            <p>
-              A running collection of explanations and experiments—focused on making the mental model
-              tighter, not the hype louder.
-            </p>
-            <div class="feature__actions">
-              <a class="btn btn--ghost" href="#repos">Jump to code</a>
-            </div>
-          </article>
+      <div class="wrap">
+        <div class="section__head">
+          <h2 class="h2">Selected work</h2>
+          <p class="p p--muted">Short, curated items. Replace titles/links with your best signals.</p>
         </div>
 
-        <div class="callout">
-          <div class="callout__title">If you want one thing from this site…</div>
-          <p class="callout__text">
-            It’s a map: what I’m building, what I’m learning, and how I think about problems.
-          </p>
+        <div class="list">
+          <article class="item">
+            <div class="item__top">
+              <div class="item__title">NeSPReSO / NeSPReSO2</div>
+              <div class="item__meta">Scientific workflows · modeling tools</div>
+            </div>
+            <div class="item__bottom">
+              <a class="link" href="https://github.com/0jrm" target="_blank" rel="noreferrer">Repository</a>
+              <span class="sep" aria-hidden="true">·</span>
+              <span class="muted">Reproducible pipelines, analysis utilities</span>
+            </div>
+          </article>
+
+          <article class="item">
+            <div class="item__top">
+              <div class="item__title">ML Papers, Explained</div>
+              <div class="item__meta">Notes · experiments · explanations</div>
+            </div>
+            <div class="item__bottom">
+              <a class="link" href="https://github.com/0jrm" target="_blank" rel="noreferrer">Collection</a>
+              <span class="sep" aria-hidden="true">·</span>
+              <span class="muted">Emphasis on clarity over hype</span>
+            </div>
+          </article>
+
+          <article class="item">
+            <div class="item__top">
+              <div class="item__title">Add a publication/preprint here</div>
+              <div class="item__meta">Venue · year</div>
+            </div>
+            <div class="item__bottom">
+              <a class="link" href="#" rel="noreferrer">PDF</a>
+              <span class="sep" aria-hidden="true">·</span>
+              <span class="muted">1-line contribution statement</span>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="section" id="repos">
-      <div class="container">
-        <header class="section__head">
-          <h2>Latest repos</h2>
-          <p>
-            Auto-fetched from GitHub (cached locally). If the API rate-limits, you’ll still see a fallback list.
-          </p>
-        </header>
-
-        <div class="toolbar">
-          <div class="toolbar__left">
-            <label class="sr-only" for="repoSearch">Search repos</label>
-            <input id="repoSearch" class="input" type="search" placeholder="Search repos…" autocomplete="off" />
-          </div>
-          <div class="toolbar__right">
-            <button class="btn btn--ghost" id="refreshRepos" type="button" title="Refresh repo list">
-              Refresh
-            </button>
-          </div>
+    <section class="section" id="code">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 class="h2">Code</h2>
+          <p class="p p--muted">Latest public repositories (auto-fetched).</p>
         </div>
 
-        <div class="repoGrid" id="repoGrid" aria-live="polite">
-          <!-- Filled by JS -->
-        </div>
+        <div class="repos" id="repos" aria-live="polite"></div>
 
-        <div class="hint">
-          Want this section to show only hand-picked repos? Open <code>assets/js/main.js</code> and set
-          <code>USE_GITHUB_API = false</code>.
+        <div class="footnote">
+          <a class="link" href="https://github.com/0jrm?tab=repositories" target="_blank" rel="noreferrer">
+            View all repositories →
+          </a>
         </div>
       </div>
     </section>
 
     <section class="section" id="contact">
-      <div class="container">
-        <header class="section__head">
-          <h2>Contact</h2>
-          <p>If something here overlaps with what you’re doing, I’m easy to reach.</p>
-        </header>
-
+      <div class="wrap">
+        <h2 class="h2">Contact</h2>
         <div class="contact">
-          <div class="contact__card">
-            <h3>Say hello</h3>
-            <p>
-              Add your preferred email and socials below. Keep it simple: one reliable channel beats five rarely checked ones.
+          <div class="contact__left">
+            <p class="p">
+              Email is best. If you’re recruiting, include role + timeline + what you’d like me to show (paper, code sample, talk).
             </p>
-
             <div class="contact__links">
-              <!-- Replace placeholders -->
-              <a class="btn" href="mailto:YOUR_EMAIL@EXAMPLE.COM">Email me</a>
-              <a class="btn btn--ghost" href="https://github.com/0jrm" target="_blank" rel="noreferrer">GitHub ↗</a>
-              <!-- Optional:
-              <a class="btn btn--ghost" href="https://www.linkedin.com/in/YOURNAME" target="_blank" rel="noreferrer">LinkedIn ↗</a>
-              -->
+              <a class="btn" href="mailto:YOUR_EMAIL@EXAMPLE.COM">YOUR_EMAIL@EXAMPLE.COM</a>
+              <a class="btn btn--ghost" href="https://github.com/0jrm" target="_blank" rel="noreferrer">GitHub</a>
+              <!-- <a class="btn btn--ghost" href="https://scholar.google.com/citations?user=XXXX" target="_blank" rel="noreferrer">Scholar</a> -->
+              <!-- <a class="btn btn--ghost" href="assets/JoseMiranda_CV.pdf" target="_blank" rel="noreferrer">CV</a> -->
             </div>
-
-            <p class="fineprint">
-              Tip: if you don’t want to publish your email, link a contact form (Google Form works) or use a dedicated address.
-            </p>
           </div>
 
-          <div class="contact__aside">
-            <div class="stat">
-              <div class="stat__num" id="statRepos">—</div>
-              <div class="stat__label">public repos</div>
-            </div>
-            <div class="stat">
-              <div class="stat__num" id="statStars">—</div>
-              <div class="stat__label">stars (approx.)</div>
-            </div>
-            <div class="stat">
-              <div class="stat__num" id="statUpdated">—</div>
-              <div class="stat__label">last updated</div>
-            </div>
-
-            <div class="note">
-              This page is intentionally lightweight. If you want a blog, add a <code>/posts</code> folder and generate RSS later.
+          <div class="contact__right">
+            <div class="panel">
+              <div class="panel__kicker">Keywords</div>
+              <div class="tags">
+                <span class="tag">ocean modeling</span>
+                <span class="tag">numerical methods</span>
+                <span class="tag">Python</span>
+                <span class="tag">HPC</span>
+                <span class="tag">inverse problems</span>
+                <span class="tag">uncertainty</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <footer class="footer">
+          <span class="muted">© <span id="y"></span> Jose Miranda</span>
+        </footer>
       </div>
     </section>
-
-    <footer class="footer">
-      <div class="container footer__inner">
-        <div class="footer__left">
-          <span class="muted">©</span> <span id="year"></span> <span class="muted">Jose Miranda</span>
-        </div>
-        <div class="footer__right">
-          <a class="mutedlink" href="#top">Back to top ↑</a>
-        </div>
-      </div>
-    </footer>
   </main>
 
   <script src="assets/js/main.js"></script>
