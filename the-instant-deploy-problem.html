@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Instant Deploy Problem</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b0f;
+    --surface: #151419;
+    --surface-hover: #1c1b22;
+    --border: #2a2833;
+    --text: #e8e6f0;
+    --text-muted: #8a8694;
+    --accent-amber: #f0a830;
+    --accent-red: #e05545;
+    --accent-blue: #5b8def;
+    --accent-green: #45b88d;
+    --accent-purple: #a78bfa;
+    --kai: #f0a830;
+    --mira: #e05545;
+    --dev: #5b8def;
+    --narrator: #8a8694;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Newsreader', Georgia, serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 6vh 6vw 8vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 30%, rgba(240,168,48,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 80% 60%, rgba(224,85,69,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% 80%, rgba(91,141,239,0.03) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-amber);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  .hero h1 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    max-width: 16ch;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent-amber);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 50ch;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+  }
+
+  .hero-meta {
+    margin-top: 3rem;
+    display: flex;
+    gap: 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.8s;
+  }
+
+  .speakers-bar {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 6vw;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 3rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 1s;
+  }
+
+  .speaker-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .speaker-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .speaker-info {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+  }
+
+  .speaker-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .speaker-role {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .conversation {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 6vw 6rem;
+  }
+
+  .turn {
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-play-state: paused;
+  }
+
+  .turn.visible {
+    animation-play-state: running;
+  }
+
+  .turn-speaker {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .turn p {
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+
+  .turn p em {
+    font-style: italic;
+    color: var(--text-muted);
+  }
+
+  .section-break {
+    margin: 4rem 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .section-break::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-break span {
+    position: relative;
+    background: var(--bg);
+    padding: 0 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .callout {
+    margin: 3rem 0;
+    padding: 1.5rem 1.75rem;
+    border-left: 2px solid var(--accent-amber);
+    background: rgba(240,168,48,0.04);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .callout p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--accent-amber);
+    line-height: 1.6;
+  }
+
+  .callout.red {
+    border-left-color: var(--accent-red);
+    background: rgba(224,85,69,0.04);
+  }
+
+  .callout.red p {
+    color: var(--accent-red);
+  }
+
+  .callout.blue {
+    border-left-color: var(--accent-blue);
+    background: rgba(91,141,239,0.04);
+  }
+
+  .callout.blue p {
+    color: var(--accent-blue);
+  }
+
+  .code-moment {
+    margin: 2rem 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .code-header {
+    padding: 0.6rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .code-header .dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .code-header .dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .code-body {
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+    overflow-x: auto;
+  }
+
+  .code-body .kw { color: var(--accent-purple); }
+  .code-body .fn { color: var(--accent-blue); }
+  .code-body .str { color: var(--accent-green); }
+  .code-body .cm { color: #555; font-style: italic; }
+
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 6vw;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 4vh 5vw 6vh; min-height: 80vh; }
+    .speakers-bar { padding: 1.5rem 5vw; gap: 1.25rem 2rem; }
+    .conversation { padding: 3rem 5vw 4rem; }
+    .hero-meta { flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-label">Episode 01 &mdash; Edge Dispatch</div>
+  <h1>The <em>Instant&nbsp;Deploy</em> Problem</h1>
+  <p class="hero-sub">Cloudflare just made it trivial to run AI-generated code at global scale. Three people sit down to figure out whether that's a breakthrough or a disaster.</p>
+  <div class="hero-meta">
+    <span>March 24, 2026</span>
+    <span>~24 min read</span>
+    <span>AI Infrastructure &middot; Edge Compute &middot; Risk</span>
+  </div>
+</header>
+
+<!-- SPEAKERS -->
+<div class="speakers-bar">
+  <div class="speaker-card">
+    <div class="speaker-dot" style="background:var(--kai)"></div>
+    <div class="speaker-info">
+      <span class="speaker-name">Kai</span>
+      <span class="speaker-role">&mdash; Infrastructure architect, builds on Cloudflare daily</span>
+    </div>
+  </div>
+  <div class="speaker-card">
+    <div class="speaker-dot" style="background:var(--mira)"></div>
+    <div class="speaker-info">
+      <span class="speaker-name">Mira</span>
+      <span class="speaker-role">&mdash; ML engineer, ships AI agents in production</span>
+    </div>
+  </div>
+  <div class="speaker-card">
+    <div class="speaker-dot" style="background:var(--dev)"></div>
+    <div class="speaker-info">
+      <span class="speaker-name">Dev</span>
+      <span class="speaker-role">&mdash; Security &amp; reliability lead, professional skeptic</span>
+    </div>
+  </div>
+</div>
+
+<!-- CONVERSATION -->
+<main class="conversation">
+
+  <!-- ACT 1 -->
+  <div class="section-break"><span>Act I &mdash; The Primitive</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Okay, so Cloudflare moved Dynamic Workers into open beta this morning. But important context: the experimental API actually shipped back in September 2025, tucked inside their Code Mode announcement. It's been quietly hardening for six months. Today is the "we're confident, come build on this" moment.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Can you back up and explain what it actually <em>is</em> for anyone who hasn't read the post?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Sure. Right now, a Cloudflare Worker is something you write, deploy through a pipeline, and it lives at a fixed endpoint. Dynamic Workers flip that. Your <em>parent</em> Worker can receive or generate code as a string, call one function, and Cloudflare spins up a brand new V8 isolate to run it. Same machine. Same thread, even. Milliseconds. When the request finishes, it's gone. No containers, no Docker, no build step.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>So it's eval-as-a-service on the edge.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>That's provocatively reductive but... not wrong. The critical difference is isolation. It's a full V8 isolate, the same security boundary that the entire Workers platform has been built on for eight years. And you control exactly which bindings it gets. You can hand it access to a KV store, a D1 database, an RPC stub to your own API, and nothing else. You can even set <code>globalOutbound: null</code> to kill all network access entirely. Or you can intercept every outbound HTTP request the code makes, inspect it, inject credentials, rewrite it, or block it.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>Wait. The credential injection piece is interesting. You're saying the sandboxed code never sees the API keys?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Exactly. The agent code calls <code>fetch("https://api.stripe.com/...")</code>, and your parent worker intercepts it on the way out and adds the auth header. The dynamic worker never knows the secret. So even if a prompt injection attack tricks the model into trying to exfiltrate credentials, there are no credentials <em>in</em> the sandbox to exfiltrate.</p>
+  </div>
+
+  <div class="code-moment">
+    <div class="code-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      the entire deployment, in one call
+    </div>
+    <div class="code-body">
+<span class="kw">const</span> worker = env.LOADER.<span class="fn">load</span>({<br>
+&nbsp;&nbsp;compatibilityDate: <span class="str">"2026-03-01"</span>,<br>
+&nbsp;&nbsp;mainModule: <span class="str">"agent.js"</span>,<br>
+&nbsp;&nbsp;modules: { <span class="str">"agent.js"</span>: agentCode },<br>
+&nbsp;&nbsp;env: { CHAT_ROOM: chatRoomRpcStub },<br>
+&nbsp;&nbsp;globalOutbound: <span class="kw">null</span> <span class="cm">// fully isolated, no network</span><br>
+});<br><br>
+<span class="kw">await</span> worker.<span class="fn">getEntrypoint</span>().<span class="fn">myAgent</span>(param);
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>The numbers are what make this a different category of thing. A few megabytes of memory. Startup in under five milliseconds. That's roughly 100x faster and 10 to 100x more memory-efficient than a container. On the same machine that received the request, so zero extra network latency. Across every one of Cloudflare's hundreds of locations worldwide. And $0.002 per unique worker per day, waived during beta.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>And here's the thing most people miss: there are no limits on concurrent sandboxes or creation rate. Container-based sandbox providers all impose those limits. Cloudflare explicitly says: a million requests per second, each loading a separate Dynamic Worker, all running concurrently? No problem. It's the same tech that's powered their platform all along.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>There's one big constraint, though.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>JavaScript. Or TypeScript. The blog is very upfront about this. Technically Workers support Python and WebAssembly, but for small on-demand code snippets, JS loads and runs much faster. Cloudflare's argument is: we're not talking about humans here, we're talking about AI. LLMs are experts in every major language, and their training data in JavaScript is immense. JavaScript, by its nature on the web, was designed to be sandboxed. It's the correct language for the job.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>That's a real constraint that people will either love or hate. But I'll admit: for the "AI writes disposable code" use case, it's the right call.</p>
+  </div>
+
+  <!-- ACT 2 -->
+  <div class="section-break"><span>Act II &mdash; The AI Play</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Let me explain why AI people should be paying close attention. The origin story here is Code Mode, which Cloudflare introduced last September. Their thesis is that agents should perform tasks not by making sequential tool calls, but by <em>writing code that calls APIs</em>. They've shown that converting an MCP server into a TypeScript API can cut token usage by 81%.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>81%? Where does that come from?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>The comparison between tool-call style and code-style agent execution. Right now, when you build an agent that needs to chain five APIs, do some math, hit Stripe, update a database... it does it through sequential tool calls. Each one is a round-trip. The model writes a JSON blob, the system executes it, sends the result back, the model reasons about the next step, writes another JSON blob. It's slow, expensive, and fragile. Every round-trip is another chance for the model to lose context or hallucinate a parameter.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Code Mode flips that. The model thinks once, writes a single coherent TypeScript function that does the entire workflow, you load it as a Dynamic Worker, it executes in one shot. Only the final output enters the context window, not every intermediate step. Fewer failure points, way lower latency, and the model reasons about the <em>whole</em> flow instead of myopically optimizing each step.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>And here's the clever part about how they expose APIs to the agent. Instead of OpenAPI specs, which are incredibly verbose, they use TypeScript interfaces. The blog shows a side-by-side: a simple chat room API takes maybe 15 lines of TypeScript type definitions. The equivalent OpenAPI spec is 70+ lines of YAML. For an LLM, fewer tokens to understand the API means fewer tokens to generate the code, which means fewer things to get wrong.</p>
+  </div>
+
+  <div class="code-moment">
+    <div class="code-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      what the agent writes (the whole workflow in one shot)
+    </div>
+    <div class="code-body">
+<span class="cm">// The user asked for a summary of Alice's recent messages.</span><br>
+<span class="cm">// I'll filter the history in code so I only read what's relevant.</span><br><br>
+<span class="kw">let</span> history = <span class="kw">await</span> env.CHAT_ROOM.<span class="fn">getHistory</span>(<span class="str">1000</span>);<br>
+<span class="kw">return</span> history.<span class="fn">filter</span>(msg => msg.author == <span class="str">"alice"</span>);
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>The proof of concept is Cloudflare's own MCP server. It exposes the <em>entire</em> Cloudflare API through just two tools, search and execute, in under 1,000 tokens. The agent searches for the right API surface, writes code against typed interfaces, runs it in a Dynamic Worker. The alternative would be hundreds of individual tool definitions that no context window could hold.</p>
+  </div>
+
+  <div class="callout">
+    <p>"Dynamic Workers turn LLMs from advisors that suggest code into actors that deploy code. That's a phase change."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Zite is the production example everyone cites. They build an app platform where users interact through chat. The LLM writes TypeScript behind the scenes to build CRUD apps, connect to Stripe, Airtable, Google Calendar, and run backend logic. Every automation runs in its own Dynamic Worker with access to only the specific services that endpoint needs. Millions of execution requests daily. Their CTO said they benchmarked every platform and Dynamic Workers won on speed and library support.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Think about what this means for AI providers. Claude Code runs locally on your machine. But imagine a version where Claude writes a script and it's running on Cloudflare's edge instantly. Sandboxed. Accessible from any device. With controlled bindings so the code can only touch what you authorize. Artifacts that graduate from sandboxed demos to real, globally distributed apps with their own storage and API bindings.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p><em>If the code works.</em></p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>...Right.</p>
+  </div>
+
+  <!-- ACT 3 -->
+  <div class="section-break"><span>Act III &mdash; The Hallucination in the Room</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>So here's my problem with this entire discourse. Everyone's celebrating the <em>infrastructure</em> achievement. Millisecond cold starts. V8 isolates. Two tenths of a cent. Cool. Genuinely cool. But the killer use case, the one Cloudflare is pushing hardest, "AI writes code and we instantly run it," has a massive, screaming hole that the excitement is papering over.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Hallucination.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>Not just hallucination. The entire spectrum of ways AI-generated code fails. Hallucinated APIs that don't exist. Wrong argument types. Logic that works for the happy path and explodes on edge cases. Subtle bugs, off-by-one errors in financial calculations, race conditions, code that <em>looks</em> perfectly reasonable, passes a casual review, and silently does the wrong thing. We've taken the most unreliable author in the history of software and given it a one-click button to deploy to hundreds of cities worldwide.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>That's fair. But you're conflating two things. The question isn't whether AI-generated code is perfect. It's not. The question is whether the <em>overall system</em> is designed to handle that imperfection.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>And my point is that the narrative doesn't emphasize that. The pitch, the excitement, the energy... it's all about the <em>speed</em>. "100x faster than containers!" Which is true. But speed is not correctness. We've made it 100x faster to deploy code that might be wrong.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Now hold on. To be fair to Cloudflare, they're not selling the gold here. They're selling the shovels. This is a gold rush, and Cloudflare is the guy on the side of the road with a wagon full of beautiful, well-made shovels. Their business model doesn't require the AI-generated code to be correct. They provide the execution primitive. Whether the code that runs on it is good or bad, they get paid the same $0.002 per worker per day. The correctness problem is explicitly someone else's to solve.</p>
+  </div>
+
+  <div class="callout red">
+    <p>"Cloudflare is selling shovels in a gold rush. The shovels are excellent. But whether there's actually gold where you're digging? That's your problem."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>And that's a perfectly rational business position! But it means the marketing and the reality have a gap. The word "securely" is doing a lot of heavy lifting. Cloudflare is conflating <em>security</em> isolation, the code can't escape the sandbox, with <em>correctness</em>, the code does what you intended. They solve the first problem. Nobody has reliably solved the second.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Okay, so let me push back, because there's a spectrum here. Not all Dynamic Worker use cases are the same. Zite isn't generating arbitrary programs. They're using <em>constrained code generation</em>: the model fills in templates, composes known API patterns, selects from pre-tested building blocks. The model writes against typed TypeScript interfaces, which means the failure surface is dramatically smaller than "write me any JavaScript you want." Those type definitions themselves act as guardrails: the model knows exactly what methods exist, what types they accept, what they return.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>Agreed. And that's the only version of this that makes sense today. Constrained generation against typed interfaces. But that's not the vision the pitch is selling. The pitch is selling <em>open-ended code generation deployed instantly</em>. That's the exciting version. That's the version that doesn't work yet.</p>
+  </div>
+
+  <!-- ACT 4 -->
+  <div class="section-break"><span>Act IV &mdash; The Middle Layer</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>So what does the responsible version look like? If I'm building on Dynamic Workers today, what should I actually do?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>You need layers between the LLM and the <code>load()</code> call. And every layer you add erodes the "instant" promise, which is why nobody wants to talk about them.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Actually, Cloudflare <em>is</em> starting to talk about them. They've shipped helper libraries that are more interesting than most people realize. The <code>@cloudflare/codemode</code> SDK wraps the whole flow: it takes your tools, creates a purpose-built sandbox, and includes code normalization to handle common formatting errors from the model. It's a basic version of exactly the validation layer we're arguing is missing.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>"Code normalization to handle common formatting errors" is a start. It's not a solution. That catches syntax issues, not logic bugs. Not hallucinated API calls. Not subtle data-corruption patterns.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Fair. But there's more. <code>@cloudflare/worker-bundler</code> resolves npm dependencies from the registry at runtime and bundles everything with esbuild. So the agent can <code>import</code> real, tested libraries instead of writing everything from scratch. Less hand-written code means less surface area for hallucination. And <code>@cloudflare/shell</code> gives the agent a virtual filesystem with transactional writes. If any write in a batch fails, earlier writes roll back automatically. That's a real guardrail against partial corruption from half-broken code.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>The Code Mode SDK also has two server-side utilities worth knowing. <code>codeMcpServer()</code> wraps any existing MCP server, replacing its tool surface with a single <code>code()</code> tool. And <code>openApiMcpServer()</code> takes an OpenAPI spec and builds a complete MCP server with search and execute tools automatically. Both run the generated code inside Dynamic Workers with calls dispatched over RPC bindings. It's not just a raw <code>load()</code> call. There's real scaffolding here.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>So let me synthesize the responsible stack. First: <em>constrain the generation space</em>. Use typed TypeScript interfaces. Give the model a narrow, well-defined API surface. The less creative freedom the model has, the fewer ways it can fail. The 81% token reduction isn't just about cost. Fewer tokens means fewer opportunities to be wrong.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>Second: <em>validate before deploying</em>. Code Mode's normalization is step one. But you should also type-check, run against test cases, validate outputs against expected schemas. This is the boring, expensive step that makes everything actually work.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Third: <em>control the blast radius</em>. This is where Dynamic Workers genuinely help. The ephemeral nature is a feature. If a worker handles one request and dies, a bug is an error message, not a production outage. Use transactional writes from the shell library. Make things idempotent. Make them retriable. Lock down network access with <code>globalOutbound</code>. Use credential injection so the sandbox never holds secrets.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Fourth: <em>human-in-the-loop for anything with side effects</em>. If the Dynamic Worker is processing payments, modifying data, calling external APIs that change state... you need approval gates. The "AI deploys code instantly" story only works safely for read-only or idempotent operations.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>Notice what we've described. We started with "one function call, instant deployment, milliseconds!" and ended up with "constrained generation, typed interfaces, code normalization, transactional writes, network lockdown, credential injection, human approval." That's not a criticism. That's the real product. The people who build <em>that</em> stack well will capture the value. The people who skip it will ship hallucinated code to production at global scale, very efficiently.</p>
+  </div>
+
+  <div class="callout blue">
+    <p>"The shovels are incredible. The question is whether you're digging in the right place. The validation layer is your map."</p>
+  </div>
+
+  <!-- ACT 5 -->
+  <div class="section-break"><span>Act V &mdash; The Security Reality</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>I need to give Cloudflare more credit on the security side than I did initially. The blog has a dedicated section on this, and it's more serious than "V8 isolates are safe, trust us."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Yeah, this part matters. They auto-deploy V8 security patches to production within hours, faster than Chrome itself. They've built a custom second-layer sandbox on top of V8 isolates. They use hardware features like Memory Protection Keys. They've partnered with and hired leading researchers for novel Spectre defenses. They have systems that scan code for malicious patterns and automatically apply additional sandboxing layers. Nearly a decade of hardening against adversarial code.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>That's a strong defense-in-depth story for <em>security</em>. I'll concede that. My skepticism was partially misplaced on that front. But it reinforces the distinction I keep making. All of this protects against the code <em>breaking out</em>. None of it protects against the code <em>being wrong</em>. You can have a perfectly sandboxed, completely secure worker that confidently charges someone's credit card the wrong amount because the model hallucinated the decimal place.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>Two completely different threat models. The sandbox handles adversarial threats: prompt injection, code escape, credential exfiltration. Those are real and Cloudflare has real answers. The correctness problem, the model generating buggy or wrong code, is an AI reliability problem, not an infrastructure problem. And conflating them is dangerous because people hear "secure sandbox" and think "safe to use."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>The novel adversarial surface I still worry about is the intersection of those two. What about an LLM that's been manipulated through prompt injection into generating code that <em>looks</em> benign, passes the normalization layer, but exfiltrates data through timing side channels? Or code that's technically correct but designed to rack up compute costs? The attack surface where "the AI is the vector" is genuinely new territory, even with eight years of experience securing against human-written malicious code.</p>
+  </div>
+
+  <!-- ACT 6 -->
+  <div class="section-break"><span>Act VI &mdash; The Strategic Picture</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>Let's zoom out. What does Cloudflare <em>want</em> here? Because the pricing tells a story.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>They want to be the default runtime for AI agents. And the shovel analogy is exactly right. In a gold rush, the people who reliably get rich aren't the miners. They're the ones selling picks, shovels, and denim. Cloudflare doesn't need the AI-generated code to be brilliant. They don't need the agents to be correct. They need everyone to <em>try</em>. Every experiment, every failed prototype, every hallucinated function that crashes on the first request... still pays $0.002 plus CPU time. The blog even says that cost is typically negligible compared to the inference costs to generate the code in the first place.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>And if they become the default execution layer, they sit between every AI provider and every end user's infrastructure. Anthropic, OpenAI, Google, every agent framework, all deploying to Cloudflare. That's an enormously powerful position.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>The blog hints at how deep this goes. Their own Cloudflare MCP server is built on Dynamic Workers. They're dogfooding this as the way to expose <em>their own API</em>. The entire Cloudflare API surface through two tools in under 1,000 tokens. If that pattern works, every major platform will want the same thing. And they'll all need a runtime.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>For AI providers specifically, I see three things. One: agent execution backends. Claude Code, ChatGPT tool use, Gemini actions... all of them could adopt Dynamic Workers as their remote execution layer instead of maintaining their own sandboxing. Two: the platform-as-a-service pattern. Every developer who builds on an AI provider's API can now let <em>their</em> users inject custom logic. Webhooks, plugins, automation rules, all running at the edge, sandboxed, with controlled access. Three: the competitive pressure. "Write code and it runs instantly" is becoming the expected user experience. Any provider that can't offer it looks slow.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>And the company that figures out the validation layer, the thing that sits between "model generated this code" and "this code is now live," that company has the actual defensible product. The runtime is becoming a commodity. Correctness is the moat.</p>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="section-break"><span>Closing Thoughts</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>So where do we land? Because I don't think any of us are saying Dynamic Workers are bad. They're a genuine technical achievement and a real primitive that unlocks architectures that weren't possible before.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--mira)">Mira</div>
+    <p>They remove the last big friction between "AI thinks of code" and "that code runs at global scale." The Code Mode paradigm, writing code instead of making tool calls, cuts token usage by 81% and produces better results. The typed TypeScript interfaces reduce hallucination surface. The helper libraries add real guardrails. This is going to change how agents are built. But the emphasis on "securely" needs an asterisk. Secure <em>execution</em>, yes. Correct <em>outcomes</em>... that's on us.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--dev)">Dev</div>
+    <p>My one-liner: Cloudflare built the best shovels in the gold rush. They're fast. They're safe. They won't blow up in your hands. But they cannot tell you whether you're digging in the right place. The sandbox protects your infrastructure. It does not protect your users from wrong answers. And the danger is that the frictionless deployment makes it easy to forget that the correctness problem exists.</p>
+  </div>
+
+  <div class="callout">
+    <p>"The sandbox protects your infrastructure. It does not protect your users from wrong answers."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--kai)">Kai</div>
+    <p>One more thing. This is one of those infrastructure moments that looks small today and reshapes what's buildable tomorrow. The people who win aren't the ones who deploy fastest. They're the ones who build the best guardrails around the speed. Typed interfaces. Validation pipelines. Transactional writes. Credential isolation. Human approval for side effects. That middle layer, between the model's output and the <code>load()</code> call, is where the real product lives. The shovel is amazing. Now go find the gold.</p>
+  </div>
+
+  <div class="turn" style="margin-top:3rem;">
+    <div class="turn-speaker" style="color:var(--narrator)">Editor's Note</div>
+    <p><em>The Dynamic Worker Loader API was first announced experimentally in September 2025 alongside Code Mode, and entered open beta on March 24, 2026. Pricing is waived during the beta period. The orchestrator demo is at <code>github.com/charl-kruger/dynamic-workers-orchestrator</code>; Cloudflare's full documentation, helper libraries (<code>@cloudflare/codemode</code>, <code>@cloudflare/worker-bundler</code>, <code>@cloudflare/shell</code>), and interactive playground are linked from the blog post at blog.cloudflare.com. Kai, Mira, and Dev are composite characters synthesized from real conversations about this technology. The concerns they raise are real. The solutions they sketch are incomplete. That's the point.</em></p>
+  </div>
+
+</main>
+
+<footer class="footer">
+  Edge Dispatch &middot; A conversation about infrastructure at the speed of thought<br>
+  <span style="opacity:0.5; margin-top:0.5rem; display:inline-block;">Crafted from a real conversation. All opinions are provisional.</span>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.turn, .callout, .code-moment, .section-break').forEach(el => {
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
