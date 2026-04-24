@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Polynomial That Eats Linear Algebra</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b0f;
+    --surface: #151419;
+    --surface-hover: #1c1b22;
+    --border: #2a2833;
+    --text: #e8e6f0;
+    --text-muted: #8a8694;
+    --accent-amber: #f0a830;
+    --accent-red: #e05545;
+    --accent-blue: #5b8def;
+    --accent-green: #45b88d;
+    --accent-purple: #a78bfa;
+    --accent-cyan: #22d3ee;
+    --gordon: #a78bfa;
+    --aya: #45b88d;
+    --raj: #5b8def;
+    --narrator: #8a8694;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Newsreader', Georgia, serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 6vh 6vw 8vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 30%, rgba(167,139,250,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 80% 60%, rgba(69,184,141,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% 80%, rgba(91,141,239,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-purple);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  .hero h1 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    max-width: 20ch;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  .hero h1 em { font-style: italic; color: var(--accent-purple); }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 54ch;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+  }
+
+  .hero-meta {
+    margin-top: 3rem;
+    display: flex;
+    gap: 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.8s;
+  }
+
+  .speakers-bar {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 6vw;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 3rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 1s;
+  }
+
+  .speaker-card { display: flex; align-items: center; gap: 0.75rem; }
+  .speaker-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .speaker-info { font-family: 'DM Sans', sans-serif; font-size: 0.8rem; }
+  .speaker-name { font-weight: 600; color: var(--text); }
+  .speaker-role { color: var(--text-muted); font-weight: 400; }
+
+  .conversation { max-width: 720px; margin: 0 auto; padding: 4rem 6vw 6rem; }
+
+  .turn {
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-play-state: paused;
+  }
+
+  .turn.visible { animation-play-state: running; }
+
+  .turn-speaker {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .turn p { font-size: 1.05rem; color: var(--text); }
+  .turn p + p { margin-top: 0.75rem; }
+  .turn p em { font-style: italic; color: var(--text-muted); }
+
+  .section-break {
+    margin: 4rem 0;
+    text-align: center;
+    position: relative;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-play-state: paused;
+  }
+
+  .section-break.visible { animation-play-state: running; }
+
+  .section-break::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-break span {
+    position: relative;
+    background: var(--bg);
+    padding: 0 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .callout {
+    margin: 3rem 0;
+    padding: 1.5rem 1.75rem;
+    border-left: 2px solid var(--accent-purple);
+    background: rgba(167,139,250,0.04);
+    border-radius: 0 6px 6px 0;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-play-state: paused;
+  }
+
+  .callout.visible { animation-play-state: running; }
+  .callout p { font-size: 1.1rem; font-weight: 300; font-style: italic; color: var(--accent-purple); line-height: 1.6; }
+  .callout.green { border-left-color: var(--accent-green); background: rgba(69,184,141,0.04); }
+  .callout.green p { color: var(--accent-green); }
+  .callout.blue { border-left-color: var(--accent-blue); background: rgba(91,141,239,0.04); }
+  .callout.blue p { color: var(--accent-blue); }
+  .callout.amber { border-left-color: var(--accent-amber); background: rgba(240,168,48,0.04); }
+  .callout.amber p { color: var(--accent-amber); }
+  .callout.red { border-left-color: var(--accent-red); background: rgba(224,85,69,0.04); }
+  .callout.red p { color: var(--accent-red); }
+
+  .code-moment {
+    margin: 2rem 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-play-state: paused;
+  }
+
+  .code-moment.visible { animation-play-state: running; }
+
+  .code-header {
+    padding: 0.6rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .code-header .dots { display: flex; gap: 4px; }
+  .code-header .dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+
+  .code-body {
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+    overflow-x: auto;
+  }
+
+  .code-body .kw { color: var(--accent-purple); }
+  .code-body .fn { color: var(--accent-blue); }
+  .code-body .str { color: var(--accent-green); }
+  .code-body .cm { color: #555; font-style: italic; }
+  .code-body .num { color: var(--accent-amber); }
+  .code-body .op { color: var(--accent-red); }
+
+  .figure-moment {
+    margin: 2.5rem 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-play-state: paused;
+  }
+
+  .figure-moment.visible { animation-play-state: running; }
+
+  .figure-header {
+    padding: 0.6rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .figure-header .fig-label {
+    color: var(--accent-purple);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .figure-body {
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .figure-body svg { max-width: 100%; height: auto; }
+
+  .figure-caption {
+    padding: 0.6rem 1rem 0.8rem;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 6vw;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: var(--surface);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    color: var(--accent-purple);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 4vh 5vw 6vh; min-height: 80vh; }
+    .speakers-bar { padding: 1.5rem 5vw; gap: 1.25rem 2rem; }
+    .conversation { padding: 3rem 5vw 4rem; }
+    .hero-meta { flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-label">Graduate Colloquium &mdash; Quantum Algorithms Series</div>
+  <h1>The <em>Polynomial</em> That Eats Linear&nbsp;Algebra</h1>
+  <p class="hero-sub">Quantum computers promise exponential speedups for linear systems. A professor, his student, and an engineer sit down to figure out what that actually means, what it costs, and how far away it really is.</p>
+  <div class="hero-meta">
+    <span>Spring 2026</span>
+    <span>~40 min read</span>
+    <span>Quantum Algorithms &middot; Fault Tolerance &middot; Linear Algebra</span>
+  </div>
+</header>
+
+<div class="speakers-bar">
+  <div class="speaker-card">
+    <div class="speaker-dot" style="background:var(--gordon)"></div>
+    <div class="speaker-info">
+      <span class="speaker-name">Gordon</span>
+      <span class="speaker-role">&mdash; Professor of quantum information, algorithm theorist</span>
+    </div>
+  </div>
+  <div class="speaker-card">
+    <div class="speaker-dot" style="background:var(--aya)"></div>
+    <div class="speaker-info">
+      <span class="speaker-name">Aya</span>
+      <span class="speaker-role">&mdash; Third-year PhD student, just passed her quals</span>
+    </div>
+  </div>
+  <div class="speaker-card">
+    <div class="speaker-dot" style="background:var(--raj)"></div>
+    <div class="speaker-info">
+      <span class="speaker-name">Raj</span>
+      <span class="speaker-role">&mdash; Quantum software architect at an FTQC startup</span>
+    </div>
+  </div>
+</div>
+
+<main class="conversation">
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act I &mdash; The Machine</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Before we talk about what a quantum computer can do for linear algebra, let us make sure everyone in the room speaks the same language. I want to start at the very bottom: what is a qubit?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>A classical bit is either 0 or 1. A coin lying on a table. A qubit is the quantum version: it can be 0, it can be 1, or it can be in a <em>superposition</em> of both at the same time. Think of a coin that is spinning in the air. While it is spinning, it is not heads or tails. It is some mixture of both. When it lands, when you <em>measure</em> it, it collapses to one or the other.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>We write the state of a qubit using a notation called Dirac notation. The state "definitely 0" is written <code>|0&rang;</code>. The state "definitely 1" is written <code>|1&rang;</code>. A superposition looks like <code>&alpha;|0&rang; + &beta;|1&rang;</code>, where &alpha; and &beta; are complex numbers whose squared magnitudes must add up to 1. Those squared magnitudes, |&alpha;|&sup2; and |&beta;|&sup2;, are the probabilities of getting 0 or 1 when you measure.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>The key insight is what happens with <em>multiple</em> qubits. Two classical bits have four possible states: 00, 01, 10, 11. You pick one. Two qubits can be in a superposition of all four at once: <code>&alpha;|00&rang; + &beta;|01&rang; + &gamma;|10&rang; + &delta;|11&rang;</code>. That takes four complex numbers to describe. Three qubits need eight. Ten qubits need 1,024. Fifty qubits need over a quadrillion. The state space grows <em>exponentially</em>. This is the raw resource that quantum algorithms exploit.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Now, what can you <em>do</em> with qubits? You apply <em>quantum gates</em>. A gate is a mathematical operation that transforms the state of one or more qubits. Think of it as an instruction: "rotate this qubit's state by a certain angle" or "entangle these two qubits together." Gates are the quantum equivalent of logic gates in a classical computer. An AND gate, an OR gate, a NOT gate: those have quantum analogs, plus uniquely quantum ones like the Hadamard gate, which puts a qubit into an equal superposition.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>And a <em>quantum circuit</em> is just a sequence of gates applied in order. First do this gate to qubit 1, then entangle qubits 1 and 3, then rotate qubit 2, and so on. The <em>depth</em> of the circuit is, roughly, the number of sequential time steps it takes. If you can do some gates in parallel, they count as one step. Circuit depth matters because each step introduces a small amount of noise and error. A circuit with depth 100 is generally manageable on today's hardware. A circuit with depth 100,000 is not. We call those <em>deep circuits</em>.</p>
+  </div>
+
+  <div class="callout amber">
+    <p>"Circuit depth is the clock. Every tick, errors accumulate. Shallow circuits finish before the noise drowns the signal. Deep circuits do not."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>One more concept before we proceed. An <em>ancilla qubit</em>. The word comes from Latin, meaning "helper." In many quantum algorithms, you need extra qubits beyond the ones that hold your actual data. These helper qubits serve as scratch space. They participate in the computation, you extract information from them through measurement, but they do not carry the final answer. Think of them as scaffolding on a building: necessary during construction, removed afterward.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>The number of ancilla qubits matters a lot in practice, because every extra qubit is a physical resource you have to pay for and protect from errors. An algorithm that needs 1 ancilla qubit is dramatically cheaper to run than one that needs 20.</p>
+  </div>
+
+  <div class="figure-moment">
+    <div class="figure-header">
+      <span class="fig-label">Fig. 1</span> A simple quantum circuit
+    </div>
+    <div class="figure-body">
+      <svg viewBox="0 0 480 170" xmlns="http://www.w3.org/2000/svg" style="max-width:440px">
+        <!-- Qubit wires -->
+        <line x1="40" y1="45" x2="440" y2="45" stroke="#8a8694" stroke-width="1"/>
+        <line x1="40" y1="95" x2="440" y2="95" stroke="#8a8694" stroke-width="1"/>
+        <line x1="40" y1="145" x2="440" y2="145" stroke="#555" stroke-width="1" stroke-dasharray="4"/>
+
+        <text x="25" y="49" text-anchor="end" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">q<tspan font-size="7" dy="2">0</tspan></text>
+        <text x="25" y="99" text-anchor="end" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">q<tspan font-size="7" dy="2">1</tspan></text>
+        <text x="25" y="149" text-anchor="end" fill="#555" font-family="DM Sans, sans-serif" font-size="10" font-weight="600">anc</text>
+
+        <!-- Gate 1: H on q0 -->
+        <rect x="65" y="29" width="32" height="32" rx="4" fill="rgba(167,139,250,0.15)" stroke="#a78bfa" stroke-width="1.2"/>
+        <text x="81" y="50" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono, monospace" font-size="13" font-weight="500">H</text>
+
+        <!-- Gate 2: CNOT q0 -> q1 -->
+        <circle cx="145" cy="45" r="5" fill="#a78bfa"/>
+        <line x1="145" y1="50" x2="145" y2="95" stroke="#a78bfa" stroke-width="1.5"/>
+        <circle cx="145" cy="95" r="8" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+        <line x1="137" y1="95" x2="153" y2="95" stroke="#a78bfa" stroke-width="1.5"/>
+        <line x1="145" y1="87" x2="145" y2="103" stroke="#a78bfa" stroke-width="1.5"/>
+
+        <!-- Gate 3: Rotation on q1 -->
+        <rect x="195" y="79" width="40" height="32" rx="4" fill="rgba(240,168,48,0.15)" stroke="#f0a830" stroke-width="1.2"/>
+        <text x="215" y="100" text-anchor="middle" fill="#f0a830" font-family="JetBrains Mono, monospace" font-size="10">R<tspan font-size="7" dy="2">z</tspan><tspan dy="-2">(</tspan><tspan>&theta;</tspan><tspan>)</tspan></text>
+
+        <!-- Gate 4: CNOT q1 -> anc -->
+        <circle cx="285" cy="95" r="5" fill="#45b88d"/>
+        <line x1="285" y1="100" x2="285" y2="145" stroke="#45b88d" stroke-width="1.5"/>
+        <circle cx="285" cy="145" r="8" fill="none" stroke="#45b88d" stroke-width="1.5"/>
+        <line x1="277" y1="145" x2="293" y2="145" stroke="#45b88d" stroke-width="1.5"/>
+        <line x1="285" y1="137" x2="285" y2="153" stroke="#45b88d" stroke-width="1.5"/>
+
+        <!-- Measurement on anc -->
+        <rect x="350" y="133" width="28" height="24" rx="3" fill="none" stroke="#555" stroke-width="1"/>
+        <path d="M358,151 Q364,141 370,151" fill="none" stroke="#555" stroke-width="1"/>
+        <line x1="364" y1="143" x2="368" y2="137" stroke="#555" stroke-width="1"/>
+
+        <!-- Output labels -->
+        <text x="445" y="49" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="9">data</text>
+        <text x="445" y="99" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="9">data</text>
+        <text x="445" y="149" fill="#555" font-family="DM Sans, sans-serif" font-size="9">discard</text>
+
+        <!-- Depth markers -->
+        <text x="81" y="18" text-anchor="middle" fill="#555" font-family="DM Sans, sans-serif" font-size="8">step 1</text>
+        <text x="145" y="18" text-anchor="middle" fill="#555" font-family="DM Sans, sans-serif" font-size="8">step 2</text>
+        <text x="215" y="18" text-anchor="middle" fill="#555" font-family="DM Sans, sans-serif" font-size="8">step 3</text>
+        <text x="285" y="18" text-anchor="middle" fill="#555" font-family="DM Sans, sans-serif" font-size="8">step 4</text>
+      </svg>
+    </div>
+    <div class="figure-caption">A quantum circuit with two data qubits (q<sub>0</sub>, q<sub>1</sub>) and one ancilla. Time flows left to right. H is a Hadamard gate (creates superposition). The vertical line with dots is a CNOT gate (entangles two qubits). R<sub>z</sub>(&theta;) is a rotation gate. The meter symbol is measurement. This circuit has depth 4. In real algorithms, circuits can have millions of steps.</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act II &mdash; The Promise</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Now we can talk about the actual problem. What is the single most common computational task in all of science and engineering?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>Solving a system of linear equations. <em>Ax = b</em>. You have a matrix A, you know the right-hand side b, and you want to find x. Every finite-element simulation, every weather forecast timestep, every machine learning regression, every Google PageRank iteration. They all eventually reduce to this.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Classically, the standard approach, Gaussian elimination, takes time proportional to N&sup3;, where N is the number of variables. Using advanced matrix multiplication algorithms, you can push this down to about N<sup>2.37</sup> in theory, though those algorithms carry enormous hidden constants and are impractical at real-world sizes. For sparse systems, where most entries in the matrix are zero, iterative methods like conjugate gradient can do much better. But even then, the cost grows polynomially in N.</p>
+    <p>In 2009, three physicists named Harrow, Hassidim, and Lloyd published a quantum algorithm, universally known as HHL, that scales as <em>log N</em>.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>I want to make sure the audience hears what that means. If your matrix has a billion rows, classically you are doing work proportional to a billion, or a billion cubed if you are using the textbook approach. HHL says you might do work proportional to <em>thirty</em>. Because log base 2 of a billion is about thirty. That is an exponential speedup.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>And that is exactly where my skepticism alarm goes off. What are the actual caveats?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Let me walk through them carefully, because they are real and they are important.</p>
+    <p><em>Caveat one:</em> the matrix A has to be <em>sparse</em>, meaning most of its entries are zero, or it must be efficiently representable in a particular way. Dense, arbitrary matrices do not get the full speedup.</p>
+    <p><em>Caveat two:</em> you need to prepare the input vector b as a quantum state. This can itself be extremely expensive. If b has no special structure, just loading it into the quantum computer can cost you the entire speedup.</p>
+    <p><em>Caveat three:</em> you do not get the full solution vector x written out for you to read. You get a quantum state that <em>encodes</em> x. You can extract limited information from it, like averages, inner products, or sampling. But reading out all N entries one by one destroys the exponential advantage.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p><em>Caveat four</em>, and this one deserves its own paragraph: the runtime depends heavily on something called the <em>condition number</em> of the matrix, usually written &kappa;.</p>
+    <p>Here is the intuition. The condition number measures how "sensitive" the system is. Imagine you are trying to find where two lines cross. If the lines cross at a sharp angle, a small wiggle in one line barely moves the intersection point. That is a well-conditioned system: &kappa; is small. If the lines are nearly parallel, a tiny nudge in one line sends the intersection flying across the plane. That is a badly-conditioned system: &kappa; is huge. The HHL algorithm's full runtime is O(&kappa;&sup2; &middot; s&sup2; &middot; log N / &epsilon;), where s is the sparsity and &epsilon; is the desired precision. Later improvements by Childs, Kothari, and Somma brought the &kappa; dependence down to linear, but it is still there. Badly conditioned matrices are expensive even for quantum computers.</p>
+  </div>
+
+  <div class="callout">
+    <p>"Quantum linear algebra does not hand you the answer on a platter. It hands you a quantum state that knows the answer, and then charges you every time you ask it a question."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>But how does HHL actually work? What are the moving parts?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>The algorithm has three main stages, and they illustrate beautifully how quantum algorithms think differently from classical ones.</p>
+    <p><em>Stage one:</em> encode b as a quantum state and decompose it into the eigenvectors of A. This uses a subroutine called Quantum Phase Estimation, or QPE. QPE is itself a deep result: it lets you "read off" the eigenvalues of A, the numbers that characterize how A stretches space, and store them in an auxiliary register of ancilla qubits.</p>
+    <p><em>Stage two:</em> invert the eigenvalues. If A has eigenvalue &lambda;, you need 1/&lambda; for the inverse. The algorithm does this by performing a controlled rotation on yet another ancilla qubit, turning the value &lambda; stored in the phase register into the value 1/&lambda; stored in an amplitude.</p>
+    <p><em>Stage three:</em> un-compute the phase estimation to disentangle the ancilla, and measure. If the ancilla reads a particular value, you have succeeded: the data qubits now hold the state proportional to A<sup>-1</sup>b, which is your solution x.</p>
+  </div>
+
+  <div class="figure-moment">
+    <div class="figure-header">
+      <span class="fig-label">Fig. 2</span> The HHL algorithm at a glance
+    </div>
+    <div class="figure-body">
+      <svg viewBox="0 0 540 200" xmlns="http://www.w3.org/2000/svg" style="max-width:500px">
+        <!-- Three boxes -->
+        <rect x="20" y="50" width="140" height="100" rx="6" fill="rgba(167,139,250,0.08)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="90" y="80" text-anchor="middle" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="11" font-weight="700">PHASE</text>
+        <text x="90" y="95" text-anchor="middle" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="11" font-weight="700">ESTIMATION</text>
+        <text x="90" y="120" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="9">"What are the</text>
+        <text x="90" y="132" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="9">eigenvalues of A?"</text>
+
+        <rect x="195" y="50" width="140" height="100" rx="6" fill="rgba(240,168,48,0.08)" stroke="#f0a830" stroke-width="1.5"/>
+        <text x="265" y="80" text-anchor="middle" fill="#f0a830" font-family="DM Sans, sans-serif" font-size="11" font-weight="700">CONTROLLED</text>
+        <text x="265" y="95" text-anchor="middle" fill="#f0a830" font-family="DM Sans, sans-serif" font-size="11" font-weight="700">ROTATION</text>
+        <text x="265" y="120" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="9">"Turn each &lambda;</text>
+        <text x="265" y="132" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="9">into 1/&lambda;"</text>
+
+        <rect x="370" y="50" width="140" height="100" rx="6" fill="rgba(69,184,141,0.08)" stroke="#45b88d" stroke-width="1.5"/>
+        <text x="440" y="80" text-anchor="middle" fill="#45b88d" font-family="DM Sans, sans-serif" font-size="11" font-weight="700">UNCOMPUTE</text>
+        <text x="440" y="95" text-anchor="middle" fill="#45b88d" font-family="DM Sans, sans-serif" font-size="11" font-weight="700">+ MEASURE</text>
+        <text x="440" y="120" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="9">"Clean up and</text>
+        <text x="440" y="132" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="9">read the answer"</text>
+
+        <!-- Arrows -->
+        <line x1="162" y1="100" x2="192" y2="100" stroke="#8a8694" stroke-width="1.2" marker-end="url(#arrowGray)"/>
+        <line x1="337" y1="100" x2="367" y2="100" stroke="#8a8694" stroke-width="1.2" marker-end="url(#arrowGray)"/>
+
+        <!-- Input/Output labels -->
+        <text x="90" y="40" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="9">input: |b&rang;</text>
+        <text x="440" y="170" text-anchor="middle" fill="#45b88d" font-family="DM Sans, sans-serif" font-size="9">output: |x&rang; = |A<tspan font-size="7" dy="-3">-1</tspan><tspan dy="3">b&rang;</tspan></text>
+
+        <defs>
+          <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,1 L7,4 L0,7" fill="none" stroke="#8a8694" stroke-width="1.2"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    <div class="figure-caption">HHL in three stages. Phase estimation decomposes the input into eigenvectors of A and stores the corresponding eigenvalues. A controlled rotation inverts them. Uncomputation cleans up the ancilla register. On success, the data register holds a quantum state proportional to the solution. The entire algorithm requires deep circuits because phase estimation uses many sequential controlled operations.</div>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>And this is where the engineering caveat hits. Those three stages, especially phase estimation, require circuits that are very deep. Hundreds of thousands of sequential gates, at minimum, for any interesting problem size. On today's quantum hardware, which is noisy, a circuit that deep produces nothing but random garbage. You need <em>error correction</em>. Which brings us to the hardest engineering problem in quantum computing.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act III &mdash; The Price of Errors</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Classical computers also have errors. A cosmic ray can flip a bit in your RAM. But classical bits are robust: a 0 is stored as a voltage near ground, a 1 as a voltage near 5 volts. Small fluctuations do not change the value. And you can copy bits freely to add redundancy.</p>
+    <p>Qubits are different in every way. Their states are continuous, not discrete, so errors can be <em>partial</em>: not a full flip from 0 to 1, but a small, insidious rotation. Worse, you <em>cannot copy</em> a qubit. This is a theorem of quantum mechanics called the no-cloning theorem. And worst of all, simply <em>looking</em> at a qubit to check if it is correct destroys the superposition you are trying to protect.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>So how do you do error correction if you cannot copy and you cannot look?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>The brilliant trick is that you spread the information of one qubit across <em>many</em> physical qubits using entanglement. You create a single <em>logical qubit</em> that is encoded in, say, a thousand physical qubits. The errors still happen on individual physical qubits, but the logical information is distributed so cleverly that you can detect and fix physical errors without ever directly measuring the logical state.</p>
+    <p>You do this by performing special "check" measurements on groups of physical qubits. These checks tell you <em>whether</em> an error happened and <em>where</em>, without revealing the actual quantum information being stored. Then you apply a correction. The dominant scheme for this is called the <em>surface code</em>, which arranges physical qubits in a 2D grid and measures patterns of neighbors to detect errors.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>The overhead is severe. With today's physical error rates, roughly one error per thousand gate operations, the surface code requires somewhere between 500 and 2,000 physical qubits per logical qubit, depending on how low you want the logical error rate. So a circuit that needs 100 clean, perfect logical qubits might need 100,000 or more noisy physical qubits in the lab. This is what people mean by <em>fault-tolerant quantum computing</em>, or FTQC: a machine where logical qubits are protected well enough to run deep circuits without the errors accumulating into nonsense.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>I keep hearing about T gates and "magic states." What are those?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>This is one of the deepest quirks of fault-tolerant quantum computing. Not all gates are created equal. There is a small set of gates called <em>Clifford gates</em>, and these can be implemented "for free" in the surface code, meaning they can be done fault-tolerantly with minimal overhead. But Clifford gates alone are not enough to compute everything. You need at least one <em>non-Clifford</em> gate to be computationally universal.</p>
+    <p>The standard choice for that non-Clifford gate is called the <em>T gate</em>. And the T gate is astonishingly expensive. You cannot just "do" a T gate directly on a surface-code logical qubit. Instead, you have to prepare a special auxiliary quantum state, called a <em>magic state</em>, using a process called <em>distillation</em>. Distillation takes many noisy copies of a rough magic state and refines them into one high-quality copy. This process requires its own dedicated region of the chip, called a <em>T factory</em>, and it is slow.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>In practice, the T factory is often the largest single consumer of physical qubits on the chip. And every arbitrary-angle rotation in your algorithm, every one of those R<sub>z</sub>(&theta;) gates we saw earlier, has to be <em>decomposed</em> into a sequence of Clifford gates plus T gates. Using the best known method, due to Ross and Selinger, a single rotation to precision &epsilon; costs about 3 log<sub>2</sub>(1/&epsilon;) T gates. So if you want ten digits of precision, that is about 100 T gates per rotation. In an algorithm like HHL or QSVT, you might have thousands of rotations.</p>
+  </div>
+
+  <div class="callout red">
+    <p>"The T gate is the bottleneck of fault-tolerant quantum computing. Every non-Clifford rotation you want to do passes through a narrow, expensive, magic-state-shaped doorway."</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act IV &mdash; The Box Inside the Box</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Now we can talk about the theoretical breakthrough that superseded HHL. To understand it, you need one key primitive: <em>block encoding</em>.</p>
+    <p>Here is the problem. Quantum mechanics only allows <em>unitary</em> operations: transformations that are perfectly reversible and preserve the total probability. But the matrices we care about in linear algebra are not unitary. They shrink vectors, have eigenvalues less than one, might not even be square. So how do you smuggle a non-unitary matrix into a unitary-only machine?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>You embed it. You build a larger unitary U that <em>contains</em> your matrix A as a sub-block, like a photograph tucked inside a larger frame. When you operate U on a specific input, the part of the output you care about behaves as if A was applied. The rest, the "frame," is junk that you throw away by measuring the ancilla qubits and checking that they came out in the right state.</p>
+  </div>
+
+  <div class="figure-moment">
+    <div class="figure-header">
+      <span class="fig-label">Fig. 3</span> Block encoding: hiding A inside a unitary U
+    </div>
+    <div class="figure-body">
+      <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg" style="max-width:480px">
+        <rect x="60" y="20" width="200" height="200" rx="8" fill="none" stroke="#a78bfa" stroke-width="2"/>
+        <text x="160" y="15" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="11" font-weight="600">UNITARY U</text>
+        <rect x="70" y="30" width="90" height="90" rx="4" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="115" y="82" text-anchor="middle" fill="#a78bfa" font-family="Newsreader, serif" font-size="28" font-weight="600" font-style="italic">A</text>
+        <rect x="165" y="30" width="87" height="90" rx="4" fill="rgba(138,134,148,0.06)" stroke="#2a2833" stroke-width="1"/>
+        <text x="208" y="78" text-anchor="middle" fill="#555" font-family="DM Sans, sans-serif" font-size="11">*</text>
+        <rect x="70" y="125" width="90" height="87" rx="4" fill="rgba(138,134,148,0.06)" stroke="#2a2833" stroke-width="1"/>
+        <text x="115" y="172" text-anchor="middle" fill="#555" font-family="DM Sans, sans-serif" font-size="11">*</text>
+        <rect x="165" y="125" width="87" height="87" rx="4" fill="rgba(138,134,148,0.06)" stroke="#2a2833" stroke-width="1"/>
+        <text x="208" y="172" text-anchor="middle" fill="#555" font-family="DM Sans, sans-serif" font-size="11">*</text>
+        <line x1="290" y1="75" x2="330" y2="75" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrP)"/>
+        <text x="340" y="65" fill="#e8e6f0" font-family="DM Sans, sans-serif" font-size="11">Ancilla reads |0&rang;</text>
+        <text x="340" y="80" fill="#e8e6f0" font-family="DM Sans, sans-serif" font-size="11">&rarr; you got A|&psi;&rang;</text>
+        <line x1="290" y1="170" x2="330" y2="170" stroke="#555" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="340" y="165" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="11">Ancilla reads |1&rang;</text>
+        <text x="340" y="180" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="11">&rarr; discard, try again</text>
+        <defs>
+          <marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,1 L7,4 L0,7" fill="none" stroke="#a78bfa" stroke-width="1.2"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    <div class="figure-caption">The matrix A (possibly non-unitary, with eigenvalues &lt;&nbsp;1) is embedded as the top-left block of a larger unitary U. Applying U to |0&rang;|&psi;&rang; and post-selecting the ancilla on |0&rang; effectively applies A to |&psi;&rang;. The starred blocks are whatever padding the unitary needs. Constructing block encodings for sparse matrices requires O(polylog N) gates. For Hamiltonians, the "linear combination of unitaries" (LCU) technique decomposes A into a sum of simpler unitaries and implements them in superposition.</div>
+  </div>
+
+  <div class="code-moment">
+    <div class="code-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      the block encoding condition, in notation and in English
+    </div>
+    <div class="code-body">
+<span class="cm">// U is a unitary on (a + n) qubits.</span><br>
+<span class="cm">// A is the matrix we care about, acting on n qubits.</span><br>
+<span class="cm">// &alpha; &ge; ||A|| is a normalization factor.</span><br>
+<br>
+(<span class="str">&lang;0|</span><sup>a</sup> &otimes; <span class="kw">I</span>) &middot; <span class="fn">U</span> &middot; (<span class="str">|0&rang;</span><sup>a</sup> &otimes; <span class="kw">I</span>) = <span class="fn">A</span> / <span class="num">&alpha;</span><br>
+<br>
+<span class="cm">// Translation: "If you prepare the ancilla qubits in |0&rang;,</span><br>
+<span class="cm">// apply U, then project the ancilla back onto |0&rang;,</span><br>
+<span class="cm">// the effect on the data qubits is exactly A/&alpha;."</span><br>
+<br>
+<span class="cm">// The 'a' ancilla qubits are the overhead.</span><br>
+<span class="cm">// Standard LCU: a = O(log L) for L-term decomposition.</span><br>
+<span class="cm">// New Trotter-based method (2025): a = 1. Just one.</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act V &mdash; The Grand Unification</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Now we arrive at the result I consider the most important in quantum algorithms of the last decade. It is called <em>Quantum Singular Value Transformation</em>, or QSVT. It was developed by Gily&eacute;n, Su, Low, and Wiebe, with the key paper appearing at STOC 2019 based on a 2018 preprint, building on quantum signal processing work by Low and Chuang from 2017.</p>
+    <p>Every matrix has a <em>singular value decomposition</em>. The singular values are the "stretching factors" that describe what the matrix does to space. If a matrix takes a unit circle and turns it into an ellipse, the singular values are the lengths of the ellipse's axes. QSVT gives you a systematic way to apply an <em>arbitrary polynomial function</em> to those singular values.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>Meaning I could apply the function f(x) = 1/x to the singular values, and I would get the inverse of A?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Exactly. Well, you apply a <em>polynomial approximation</em> to 1/x, since QSVT works with polynomials, not arbitrary functions. But any smooth function can be approximated by a polynomial, so this is not a real limitation. And here is the punch line: QSVT <em>recovers HHL as a special case</em>. It also recovers Hamiltonian simulation, amplitude amplification, quantum search, ground state preparation, and about a dozen other algorithms that were previously thought to be completely different inventions. All of them turn out to be the same machine with different polynomial settings.</p>
+  </div>
+
+  <div class="callout amber">
+    <p>"Before QSVT, quantum algorithms were a zoo. After QSVT, they are a single animal that can change its coat."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>How does it work at the circuit level?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>The circuit is strikingly simple. You alternate between two things: applying the block-encoded unitary U (or its conjugate U&dagger;), and applying a single-qubit rotation on the ancilla qubit. That rotation has an angle, call it &phi;. You do this back and forth d times, where d is the degree of your target polynomial. The full circuit looks like: rotate, apply U, rotate, apply U&dagger;, rotate, apply U, and so on.</p>
+    <p>The entire intelligence of the algorithm lives in the <em>angles</em>. Different angles, different polynomial. Same circuit structure, same hardware, but you reprogram the polynomial by changing the rotation angles.</p>
+  </div>
+
+  <div class="figure-moment">
+    <div class="figure-header">
+      <span class="fig-label">Fig. 4</span> The QSVT circuit: interleaved unitaries and phase rotations
+    </div>
+    <div class="figure-body">
+      <svg viewBox="0 0 580 180" xmlns="http://www.w3.org/2000/svg" style="max-width:540px">
+        <line x1="30" y1="50" x2="550" y2="50" stroke="#8a8694" stroke-width="1"/>
+        <text x="15" y="54" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="end">anc</text>
+        <line x1="30" y1="110" x2="550" y2="110" stroke="#8a8694" stroke-width="1"/>
+        <text x="15" y="114" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="end">sys</text>
+
+        <rect x="50" y="36" width="36" height="28" rx="4" fill="rgba(240,168,48,0.2)" stroke="#f0a830" stroke-width="1.2"/>
+        <text x="68" y="55" text-anchor="middle" fill="#f0a830" font-family="JetBrains Mono, monospace" font-size="10">&phi;<tspan font-size="7" dy="2">0</tspan></text>
+
+        <rect x="106" y="36" width="44" height="88" rx="5" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="128" y="85" text-anchor="middle" fill="#a78bfa" font-family="Newsreader, serif" font-size="18" font-style="italic">U</text>
+
+        <rect x="168" y="36" width="36" height="28" rx="4" fill="rgba(240,168,48,0.2)" stroke="#f0a830" stroke-width="1.2"/>
+        <text x="186" y="55" text-anchor="middle" fill="#f0a830" font-family="JetBrains Mono, monospace" font-size="10">&phi;<tspan font-size="7" dy="2">1</tspan></text>
+
+        <rect x="222" y="36" width="44" height="88" rx="5" fill="rgba(91,141,239,0.12)" stroke="#5b8def" stroke-width="1.5"/>
+        <text x="244" y="85" text-anchor="middle" fill="#5b8def" font-family="Newsreader, serif" font-size="18" font-style="italic">U&dagger;</text>
+
+        <rect x="284" y="36" width="36" height="28" rx="4" fill="rgba(240,168,48,0.2)" stroke="#f0a830" stroke-width="1.2"/>
+        <text x="302" y="55" text-anchor="middle" fill="#f0a830" font-family="JetBrains Mono, monospace" font-size="10">&phi;<tspan font-size="7" dy="2">2</tspan></text>
+
+        <rect x="338" y="36" width="44" height="88" rx="5" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="360" y="85" text-anchor="middle" fill="#a78bfa" font-family="Newsreader, serif" font-size="18" font-style="italic">U</text>
+
+        <text x="410" y="80" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="20">&hellip;</text>
+
+        <rect x="440" y="36" width="36" height="28" rx="4" fill="rgba(240,168,48,0.2)" stroke="#f0a830" stroke-width="1.2"/>
+        <text x="458" y="55" text-anchor="middle" fill="#f0a830" font-family="JetBrains Mono, monospace" font-size="10">&phi;<tspan font-size="7" dy="2">d</tspan></text>
+
+        <rect x="500" y="38" width="28" height="24" rx="3" fill="none" stroke="#8a8694" stroke-width="1"/>
+        <path d="M508,56 Q514,46 520,56" fill="none" stroke="#8a8694" stroke-width="1"/>
+        <line x1="514" y1="48" x2="518" y2="42" stroke="#8a8694" stroke-width="1"/>
+
+        <text x="128" y="150" text-anchor="middle" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="9" opacity="0.7">block-encoded A</text>
+        <text x="244" y="150" text-anchor="middle" fill="#5b8def" font-family="DM Sans, sans-serif" font-size="9" opacity="0.7">conjugate</text>
+        <text x="300" y="170" text-anchor="middle" fill="#f0a830" font-family="DM Sans, sans-serif" font-size="9" opacity="0.7">&phi; angles encode the target polynomial</text>
+      </svg>
+    </div>
+    <div class="figure-caption">The QSVT circuit alternates between U (and U&dagger;) on the full register and single-qubit phase rotations on the ancilla. The number of applications of U equals the degree of the polynomial. For linear system solving (polynomial approximation to 1/x), the degree is proportional to the condition number &kappa;. For Hamiltonian simulation (polynomial approximation to e<sup>itx</sup>), it is proportional to the simulation time t. The structure is identical in both cases. Only the angles change.</div>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>So how do you <em>find</em> the right angles? If you want, say, a polynomial approximation to 1/x, what is the actual process of computing &phi;<sub>0</sub> through &phi;<sub>d</sub>?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>This is a crucial and often underappreciated step, and it happens entirely on a <em>classical</em> computer before the quantum circuit ever runs. There are several approaches.</p>
+    <p>The original method, based on the proof of the quantum signal processing theorem, uses polynomial factorization: you start with your target polynomial, factor it in a specific way, and read off the angles from the factors. Ying's 2022 algorithm stabilized this numerically using techniques from signal processing. A more recent approach by Dong, Lin, Ni, and Wang uses an iterative optimization method. And the Generalized QSP framework from Motlagh and Wiebe (2024) can find angles for polynomials of degree 10 million in under a minute of GPU time.</p>
+    <p>The key insight is that for large condition numbers, the polynomials become high-degree and oscillatory, making the angle computation itself numerically delicate. Novikau and collaborators showed in 2025 how to estimate angles for condition numbers in the thousands by compressing the parametrization, reducing the problem to fitting a smaller set of "meta-parameters" that capture the overall shape of the angle sequence.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>To be concrete about what the angles <em>do</em>: each angle adjusts the relative phase between the "A was applied" and "A was not applied" branches of the quantum state. When you stack many of these adjustments in sequence, the interference pattern they create carves out the desired polynomial transformation. It is the quantum version of how a stack of thin glass layers can create a very specific wavelength filter through constructive and destructive interference of light. Each layer is simple. The composite effect is sophisticated.</p>
+  </div>
+
+  <div class="code-moment">
+    <div class="code-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      QSVT complexities for key tasks
+    </div>
+    <div class="code-body">
+<span class="cm">// Task                  Target function      Queries to U</span><br>
+<span class="cm">// -------------------------------------------------------</span><br>
+<span class="fn">Linear system solve</span>    p(x) &asymp; <span class="num">1/x</span>          O(<span class="num">&kappa;</span> &middot; log(<span class="num">1/&epsilon;</span>))<br>
+<span class="fn">Hamiltonian sim</span>        p(x) &asymp; <span class="num">e<sup>itx</sup></span>         O(<span class="num">t</span> + log(<span class="num">1/&epsilon;</span>))<br>
+<span class="fn">Amplitude amplify</span>      p(x) = <span class="num">step fn</span>        O(<span class="num">1/&radic;p</span>)<br>
+<span class="fn">Ground state prep</span>      p(x) = <span class="num">low-pass</span>       O(<span class="num">&Delta;<sup>-1</sup></span> &middot; log(<span class="num">1/&epsilon;</span>))<br>
+<br>
+<span class="cm">// &kappa; = condition number, &epsilon; = precision</span><br>
+<span class="cm">// &Delta; = spectral gap, t = simulation time</span><br>
+<span class="cm">// All are provably optimal or near-optimal in query count.</span>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>One more critical development. In April 2025, Chakraborty and collaborators showed how to implement QSVT <em>without block encodings</em> at all, using only <em>Trotter-based Hamiltonian simulation</em> and a single ancilla qubit.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>Can you explain what Trotter-based simulation is?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Certainly. Suppose you want to simulate the time evolution of a quantum system governed by a Hamiltonian H, which is a sum of simpler terms: H = H<sub>1</sub> + H<sub>2</sub> + ... + H<sub>L</sub>. The exact evolution is e<sup>-iHt</sup>, but computing the exponential of a sum of non-commuting matrices is hard. The Trotter formula, also called the Suzuki-Trotter decomposition, approximates it by applying each term separately in sequence: e<sup>-iH<sub>1</sub>&Delta;t</sup> &middot; e<sup>-iH<sub>2</sub>&Delta;t</sup> &middot; ... &middot; e<sup>-iH<sub>L</sub>&Delta;t</sup>, over many small time steps &Delta;t. Higher-order Trotter formulas reduce the approximation error by interleaving the terms in clever patterns.</p>
+    <p>The beauty of the Chakraborty result is that it replaces the expensive block-encoding machinery with simple Trotter circuits plus clever use of Richardson extrapolation, a classical technique for systematically cancelling approximation errors. The result: near-optimal complexity, vastly simpler circuits, and just one ancilla qubit instead of O(log L).</p>
+  </div>
+
+  <div class="callout green">
+    <p>"QSVT is a compiler. You specify a polynomial transformation. It outputs a quantum circuit. The same structure, the same machine, produces Hamiltonian simulation, matrix inversion, search, or ground state preparation. You reprogram it by changing only the angles."</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act VI &mdash; Where the Hardware Stands</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>Let me translate the current hardware landscape into terms that connect directly to what we have been discussing. The question is: how many reliable quantum operations can today's machines actually perform?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>And when you say "reliable," you mean the logical qubit level, with error correction active?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>Exactly. Let me walk through the major demonstrations as of spring 2026, and I will explain what each one actually means.</p>
+    <p><em>Quantinuum</em>, which builds trapped-ion quantum computers, recently demonstrated computations using up to 94 logical qubits. This is the largest number anyone has demonstrated. But there is an important caveat: they used "iceberg codes," which are a family of <em>error-detection</em> codes, not full error-correction codes. The difference is significant. Error detection lets you <em>notice</em> when an error happened and throw out that run. Error correction lets you <em>fix</em> the error and keep going. Detection is cheaper but means you sometimes have to retry. Their real headline result was "beyond break-even": the error-detected logical operations actually performed <em>better</em> than the raw physical operations. In other words, the error protection was genuinely helping instead of adding more overhead than it removed. That sounds obvious, but most earlier experiments actually made things <em>worse</em> by adding error correction. Crossing break-even is a genuine milestone.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p><em>Microsoft and Atom Computing</em> demonstrated 28 logical qubits encoded across 112 neutral atoms, with 24 of them entangled. Neutral atoms are a different technology from trapped ions or superconducting circuits. Individual atoms are cooled near absolute zero and held in place by focused laser beams. The key advantage for error correction is that atoms can be <em>physically moved</em>, allowing any pair to interact. This flexible connectivity makes it much easier to implement advanced error-correcting codes that require non-local interactions.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p><em>IBM</em> is pursuing superconducting qubits: tiny circuits on a chip that behave like artificial atoms. Their current flagship processor, Heron, supports circuits with about 5,000 two-qubit gates. Their next processor, Nighthawk, targets 7,500 gates by end of 2026. These are <em>physical</em> gates, not logical ones. IBM's path to logical qubits runs through their Kookaburra module, expected later this year, which will be the first processor designed to store information in qLDPC codes, a newer family of error-correcting codes that promise up to 90% fewer physical qubits per logical qubit compared to standard surface codes.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>So where does all of this leave us relative to running something like QSVT for a real linear algebra problem?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>To run QSVT on a meaningful linear systems problem, something like a 10<sup>6</sup>-dimensional sparse system with condition number 10<sup>3</sup>, you need roughly 200 to 1,000 logical qubits executing millions of logical gates. Today we have demonstrated tens of logical qubits executing hundreds of gates. We are off by about two orders of magnitude in qubits and four orders of magnitude in gate count.</p>
+  </div>
+
+  <div class="figure-moment">
+    <div class="figure-header">
+      <span class="fig-label">Fig. 5</span> The gap: where machines are vs. where algorithms need them
+    </div>
+    <div class="figure-body">
+      <svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" style="max-width:500px">
+        <!-- Axes -->
+        <line x1="80" y1="250" x2="490" y2="250" stroke="#2a2833" stroke-width="1.5"/>
+        <line x1="80" y1="250" x2="80" y2="30" stroke="#2a2833" stroke-width="1.5"/>
+        <text x="285" y="280" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="10">Logical qubits</text>
+        <text x="30" y="140" text-anchor="middle" fill="#8a8694" font-family="DM Sans, sans-serif" font-size="10" transform="rotate(-90, 30, 140)">Reliable gate count</text>
+
+        <!-- Scale markers on X -->
+        <text x="120" y="265" text-anchor="middle" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">10</text>
+        <text x="210" y="265" text-anchor="middle" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">100</text>
+        <text x="330" y="265" text-anchor="middle" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">1,000</text>
+        <text x="450" y="265" text-anchor="middle" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">10,000</text>
+
+        <!-- Scale markers on Y -->
+        <text x="70" y="230" text-anchor="end" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">10<tspan font-size="6" dy="-3">2</tspan></text>
+        <text x="70" y="185" text-anchor="end" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">10<tspan font-size="6" dy="-3">4</tspan></text>
+        <text x="70" y="140" text-anchor="end" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">10<tspan font-size="6" dy="-3">6</tspan></text>
+        <text x="70" y="95" text-anchor="end" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">10<tspan font-size="6" dy="-3">8</tspan></text>
+        <text x="70" y="50" text-anchor="end" fill="#555" font-family="JetBrains Mono, monospace" font-size="8">10<tspan font-size="6" dy="-3">10</tspan></text>
+
+        <!-- Grid lines -->
+        <line x1="80" y1="185" x2="490" y2="185" stroke="#1c1b22" stroke-width="0.5"/>
+        <line x1="80" y1="140" x2="490" y2="140" stroke="#1c1b22" stroke-width="0.5"/>
+        <line x1="80" y1="95" x2="490" y2="95" stroke="#1c1b22" stroke-width="0.5"/>
+        <line x1="210" y1="250" x2="210" y2="30" stroke="#1c1b22" stroke-width="0.5"/>
+        <line x1="330" y1="250" x2="330" y2="30" stroke="#1c1b22" stroke-width="0.5"/>
+
+        <!-- Today's machines cluster -->
+        <circle cx="150" cy="220" r="8" fill="rgba(240,168,48,0.3)" stroke="#f0a830" stroke-width="1.5"/>
+        <text x="150" y="224" text-anchor="middle" fill="#f0a830" font-family="DM Sans, sans-serif" font-size="7" font-weight="700">QNM</text>
+        <circle cx="130" cy="225" r="6" fill="rgba(240,168,48,0.3)" stroke="#f0a830" stroke-width="1"/>
+        <text x="130" y="228" text-anchor="middle" fill="#f0a830" font-family="DM Sans, sans-serif" font-size="6" font-weight="700">MS</text>
+        <circle cx="165" cy="228" r="5" fill="rgba(240,168,48,0.3)" stroke="#f0a830" stroke-width="1"/>
+        <text x="165" y="231" text-anchor="middle" fill="#f0a830" font-family="DM Sans, sans-serif" font-size="5" font-weight="700">QE</text>
+
+        <!-- 2029 target -->
+        <circle cx="280" cy="95" r="10" fill="rgba(91,141,239,0.2)" stroke="#5b8def" stroke-width="1.5"/>
+        <text x="280" y="99" text-anchor="middle" fill="#5b8def" font-family="DM Sans, sans-serif" font-size="7" font-weight="700">2029</text>
+
+        <!-- QSVT target zone -->
+        <rect x="280" y="50" width="180" height="70" rx="8" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6"/>
+        <text x="370" y="75" text-anchor="middle" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="9" font-weight="600">QSVT at scale</text>
+        <text x="370" y="90" text-anchor="middle" fill="#a78bfa" font-family="DM Sans, sans-serif" font-size="8">(useful linear algebra)</text>
+
+        <!-- Labels -->
+        <text x="147" y="200" text-anchor="middle" fill="#f0a830" font-family="DM Sans, sans-serif" font-size="9" font-weight="600">TODAY</text>
+      </svg>
+    </div>
+    <div class="figure-caption">Log-log schematic of the gap between current hardware and algorithm requirements. QNM = Quantinuum (~94 logical qubits, ~10<sup>2</sup> gates), MS = Microsoft/Atom Computing (~28 logical qubits), QE = QuEra (~37 logical qubits). IBM's 2029 Starling target aims for 200 logical qubits and 10<sup>8</sup> gates. Useful QSVT for linear algebra requires the upper-right region. Positions are approximate and illustrative.</div>
+  </div>
+
+  <div class="callout red">
+    <p>"The algorithm is ready. The compiler is ready. The error correction theory is ready. The machines are not. That gap is the entire story of quantum computing in 2026."</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act VII &mdash; The Dequantization Specter</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>There is an elephant we have not addressed. In 2018, Ewin Tang, who was an undergraduate at the time, showed that the quantum recommendation algorithm, which used HHL as a subroutine, could be closely matched by a clever classical algorithm. Since then, a whole program of "dequantization" results has shown that classical algorithms can, under certain data-access assumptions, achieve polynomial runtimes for many of the same tasks that HHL and QSVT target. If classical algorithms can get close enough, does the quantum advantage survive?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>This is the sharpest criticism of the quantum linear algebra program and it deserves a careful answer. The dequantization results show that when classical algorithms have access to a data structure supporting <em>length-squared sampling</em>, they can achieve polynomial, though not exponential, speedups for many linear algebra tasks. The quantum exponential speedup degrades to a polynomial one.</p>
+    <p>But the advantage survives in at least three important regimes. First, when the input is <em>inherently quantum</em>: if your matrix is a Hamiltonian describing a physical system, the data is already quantum and there is no classical analog to sample from. Quantum chemistry lives here. Second, when the matrix has specific structure, like extreme sparsity without an efficient classical sampler. Third, QSVT remains <em>query-optimal</em> within its computational model. The dequantization results are about the model itself, not the algorithm.</p>
+  </div>
+
+  <div class="callout blue">
+    <p>"Dequantization does not kill quantum linear algebra. It prunes it. What survives is stronger, and points to the problems where quantum machines are genuinely necessary."</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Act VIII &mdash; What Gets Built First</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>Let me be concrete about what I think the first real QSVT-based application on fault-tolerant hardware will look like. It will not be solving an arbitrary system Ax = b. It will be <em>Hamiltonian simulation for quantum chemistry</em>. Let me explain what that means and why.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>What is Hamiltonian simulation?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>A Hamiltonian is a mathematical object that encodes all the energy rules of a physical system. For a molecule, it describes how electrons interact with each other and with the atomic nuclei. If you know the Hamiltonian, you can, in principle, predict every property of the molecule: its shape, its energy, how it reacts with other molecules, whether it conducts electricity, everything.</p>
+    <p>"Simulating" the Hamiltonian means computing how the system evolves over time, which amounts to calculating the matrix exponential e<sup>-iHt</sup>. For a classical computer, this is extraordinarily expensive because the matrix grows exponentially with the number of electrons. A system with 50 electrons has a Hamiltonian that is a 2<sup>50</sup> by 2<sup>50</sup> matrix, roughly 10<sup>15</sup> by 10<sup>15</sup>. No classical computer can store that, let alone invert it.</p>
+    <p>But a quantum computer with 50 qubits <em>naturally</em> represents a 2<sup>50</sup>-dimensional space. That is the whole point. The quantum computer's state space matches the problem's state space. And QSVT can simulate the Hamiltonian using a polynomial approximation to e<sup>-iHt</sup> that scales linearly in time, not exponentially.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>This is why chemistry is the leading candidate. Two reasons. First, it is immune to dequantization because the input is natively quantum. There is no classical data structure to "length-squared sample" from. Second, the polynomial for time evolution has much better degree scaling than the polynomial for matrix inversion. You do not pay the condition number &kappa;. The resource estimates are tough but plausible for machines in the 2029-2030 timeframe.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>What kind of chemistry problem is the target?</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>The canonical benchmark is the FeMo cofactor of the enzyme nitrogenase. This enzyme is what allows bacteria to convert atmospheric nitrogen into ammonia, a reaction that the industrial Haber-Bosch process replicates at enormous energy cost. Understanding the quantum-mechanical details of this reaction could lead to more efficient catalysts. The molecule has an iron-molybdenum core with complex electronic correlations that are beyond the reach of classical approximation methods. Reiher and collaborators estimated in 2017 that simulating it would require a few thousand logical qubits. More recent compilation techniques have brought the estimates down, but it remains well beyond current hardware.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>IBM's roadmap is calibrated specifically against this kind of workload. Their vision is hybrid: a classical supercomputer handles the bulk of the computation, and the fault-tolerant quantum core handles only the hardest kernel, the part involving strong electron-electron correlations that classical methods approximate poorly. The quantum computer acts as a specialized accelerator, not a standalone machine.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>For linear systems beyond chemistry, the near-term candidates are partial differential equations from physics simulations. The Vlasov-Poisson equation in plasma physics, electromagnetic wave propagation, computational fluid dynamics. These produce sparse, structured matrices with moderate condition numbers: exactly the regime where QSVT's polynomial inversion is most efficient. And the quantities of interest, things like average field strengths or energy densities, are expectation values, which sidestep the readout bottleneck.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="section-break"><span>Closing Thoughts</span></div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>Let me synthesize. Quantum linear algebra is not a single algorithm. It is a stack. At the bottom is block encoding, the interface that lets a unitary machine handle non-unitary matrices. In the middle is QSVT, the universal compiler that turns any polynomial specification into an optimal quantum circuit. At the top are the applications: linear solvers, Hamiltonian simulators, eigenvalue estimators, machine learning subroutines.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>The stack is theoretically complete. QSVT gives optimal or near-optimal algorithms for every major primitive. The phase angle computation is becoming tractable. The 2025 block-encoding-free variant removes the most expensive engineering bottleneck. What is not ready is the hardware underneath.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>We are in the early fault-tolerant era. Quantinuum has shown 94 logical qubits with beyond-break-even performance. Microsoft, Atom Computing, and QuEra are building machines with 28 to 50 logical qubits. IBM targets verified quantum advantage by end of year using hybrid HPC-quantum workflows. But QSVT at full scale needs hundreds to thousands of logical qubits executing millions of gates. That is 2029 at the earliest, probably later for genuinely useful linear algebra.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--gordon)">Gordon</div>
+    <p>But do not mistake that timeline for irrelevance. The algorithms being developed now <em>are</em> the algorithms that will run on those machines. The theory is descending toward what hardware can do. The hardware is ascending toward what theory requires. The gap is narrowing from both sides.</p>
+  </div>
+
+  <div class="callout">
+    <p>"QSVT is not an algorithm. It is a theorem about what quantum computers can do with polynomials. And since you can approximate any reasonable function with a polynomial, it is, in a very real sense, a theorem about everything."</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--raj)">Raj</div>
+    <p>My advice for anyone in this room considering working on this: do not wait for the hardware. Build the software stack, the compilers, the application-specific circuits, the resource estimation pipelines, right now. When a machine shows up that can run a million T gates reliably, the first team with a meaningful problem compiled and ready to execute will demonstrate quantum advantage. And that demonstration will change the field overnight.</p>
+  </div>
+
+  <div class="turn">
+    <div class="turn-speaker" style="color:var(--aya)">Aya</div>
+    <p>The polynomial that eats linear algebra is QSVT. The machine that runs it does not fully exist yet. But the recipe is written, the compiler works, and the ingredients are being assembled in half a dozen labs worldwide. The question is not <em>if</em>. It is <em>when</em>, and <em>who gets there first</em>.</p>
+  </div>
+
+  <div class="turn" style="margin-top:3rem;">
+    <div class="turn-speaker" style="color:var(--narrator)">Editor's Note</div>
+    <p><em>The QSVT framework was introduced by Gily&eacute;n, Su, Low, and Wiebe (STOC 2019), building on quantum signal processing by Low and Chuang (PRL 2017). The HHL algorithm was published by Harrow, Hassidim, and Lloyd (PRL 2009); the improved O(&kappa; polylog N/&epsilon;) complexity is due to Childs, Kothari, and Somma (SIAM J. Computing 2017). Block-encoding-free QSVT appeared in Chakraborty et al. (arXiv:2504.02385, April 2025). Efficient angle computation methods include Ying's stable factorization (Quantum 2022), the Dong-Lin-Ni-Wang iterative method (SIAM J. Sci. Comp. 2024), Generalized QSP by Motlagh and Wiebe (PRX Quantum 2024), and the compressed parametrization of Novikau et al. (J. Comp. Phys. 2025). The FeMo cofactor resource estimate is from Reiher et al. (PNAS 2017). Dequantization originates with Tang (STOC 2019), extended by Chia, Gily&eacute;n, Li, Lin, Tang, and Wang (JACM 2022). Hardware milestones cited: Quantinuum's 94-logical-qubit experiment with iceberg codes (arXiv, March 2026), Microsoft/Atom Computing's 28-logical-qubit neutral-atom demonstration (2025), IBM's Nighthawk processor and Kookaburra module roadmap (2025-2026), QuEra's AIST deployment (~37 logical qubits, 2025). The best known matrix multiplication exponent is &omega; &lt; 2.371339 (Alman, Duan, Williams, Xu, Xu, Zhou, 2025). Gordon, Aya, and Raj are composite characters. The mathematics they describe is real. All hardware timelines carry significant uncertainty.</em></p>
+  </div>
+
+</main>
+
+<footer class="footer">
+  Quantum Colloquium Notes &middot; A conversation about the algorithms waiting for their machines<br>
+  <span style="opacity:0.5; margin-top:0.5rem; display:inline-block;">Synthesized from real research. All timelines are provisional.</span>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.turn, .callout, .code-moment, .figure-moment, .section-break').forEach(el => {
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
