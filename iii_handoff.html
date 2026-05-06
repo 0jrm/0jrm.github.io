@@ -938,14 +938,182 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════
+       06 · iii AS A TRACEABILITY STANDARD
+       (derived from Jose Miranda, ISC5035 Discord, Spring 2026)
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">iii as a Traceability Standard — Not Just Infrastructure</span>
+    </div>
+
+    <div style="background:var(--paper-dark);border:1px solid var(--rule);padding:1rem 1.5rem;margin-bottom:2rem;border-radius:2px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">Addendum — Source</div>
+      <p style="font-size:0.88rem;font-weight:300;color:var(--muted);line-height:1.65;">The following insight was raised by Jose Miranda in a Discord discussion about redesigning ISC5035 (AI-assisted scientific C++ programming, FSU, Fall 2026). His observation: <em>"In terms of traceability, iii seems a nice standard."</em> What follows unpacks what that means and why it matters beyond production engineering.</p>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p class="body-text">
+          The document so far has framed iii as a production infrastructure concern — how to safely run AI agents inside backend systems at scale. But Jose Miranda points to something structurally prior: <strong>iii's semantic trace model is a legibility standard for any human-AI workflow that needs to be audited</strong>, not just deployed.
+        </p>
+        <p class="body-text">
+          Consider the pedagogical loop the course demands of every student on every assignment:
+        </p>
+
+        <div class="code-block" style="margin-top:1.25rem;">
+          <div class="code-header">student workflow — ISC5035 AI-assisted C++</div>
+          <div class="code-body">
+<span class="c-cm">// What the course asks students to document every session</span><br>
+<span class="c-key">spec</span>         → write the requirement before prompting<br>
+<span class="c-key">ai_draft</span>     → issue the prompt, record the output<br>
+<span class="c-key">inspect</span>      → read it; what is suspicious?<br>
+<span class="c-key">compile/test</span> → what passed, what failed, what surprised<br>
+<span class="c-key">revise/reject</span> → what was manually changed and why<br>
+<span class="c-key">evidence</span>     → artifact: the above, signed off
+          </div>
+        </div>
+
+        <p class="body-text" style="margin-top:1.25rem;">
+          This is iii's pipeline by another name. The student's spec <em>is</em> the intent. The AI draft <em>is</em> the model step. The test run <em>is</em> the verifier. The journal entry <em>is</em> the semantic trace. The difference is only that in a course setting the "system" is a human learner, not a production backend.
+        </p>
+      </div>
+
+      <div>
+        <!-- MAPPING DIAGRAM -->
+        <div style="border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:1.5rem;">
+          <div style="background:var(--ink);padding:0.6rem 1rem;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#6b6358;letter-spacing:0.1em;">iii pipeline ↔ student artifact mapping</div>
+          <div style="padding:0;">
+            <div style="display:grid;grid-template-columns:1fr 0.15fr 1fr;align-items:center;padding:0.6rem 1rem;border-bottom:1px solid var(--rule-light);font-size:0.82rem;">
+              <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent-gold);font-size:0.75rem;">Intent</span>
+              <span style="text-align:center;color:var(--rule);">↔</span>
+              <span style="color:var(--muted);font-weight:300;">Written spec before any prompt is issued</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 0.15fr 1fr;align-items:center;padding:0.6rem 1rem;border-bottom:1px solid var(--rule-light);font-size:0.82rem;background:rgba(167,139,250,0.03);">
+              <span style="font-family:'IBM Plex Mono',monospace;color:#7a5bef;font-size:0.75rem;">Model step</span>
+              <span style="text-align:center;color:var(--rule);">↔</span>
+              <span style="color:var(--muted);font-weight:300;">Prompt issued + raw AI output recorded</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 0.15fr 1fr;align-items:center;padding:0.6rem 1rem;border-bottom:1px solid var(--rule-light);font-size:0.82rem;">
+              <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent-blue);font-size:0.75rem;">Capability call</span>
+              <span style="text-align:center;color:var(--rule);">↔</span>
+              <span style="color:var(--muted);font-weight:300;">Compilation, test run, benchmark, Herbie/Verificarlo</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 0.15fr 1fr;align-items:center;padding:0.6rem 1rem;border-bottom:1px solid var(--rule-light);font-size:0.82rem;background:rgba(69,184,141,0.03);">
+              <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent-green);font-size:0.75rem;">Verifier result</span>
+              <span style="text-align:center;color:var(--rule);">↔</span>
+              <span style="color:var(--muted);font-weight:300;">What passed, what failed, what was numerically wrong</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 0.15fr 1fr;align-items:center;padding:0.6rem 1rem;border-bottom:1px solid var(--rule-light);font-size:0.82rem;">
+              <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:0.75rem;">Approval / reject</span>
+              <span style="text-align:center;color:var(--rule);">↔</span>
+              <span style="color:var(--muted);font-weight:300;">Student decision: accept, revise, or discard AI output</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 0.15fr 1fr;align-items:center;padding:0.6rem 1rem;font-size:0.82rem;background:rgba(92,42,122,0.03);">
+              <span style="font-family:'IBM Plex Mono',monospace;color:#8a5baa;font-size:0.75rem;">Semantic trace</span>
+              <span style="text-align:center;color:var(--rule);">↔</span>
+              <span style="color:var(--muted);font-weight:300;">Signed artifact: the whole chain, explainable on demand</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pull-quote gold">
+          <p>"A student who understands what a semantic trace should contain is a student who understands what they are personally responsible for verifying."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE DEEPER INSIGHT -->
+    <div style="margin-top:2rem;">
+      <div class="section-header" style="border-top:1px solid var(--rule);margin-top:0;">
+        <span class="section-num">—</span>
+        <span class="section-title">What This Reveals About iii's Scope</span>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <p class="body-text">
+            Jose's observation surfaces an important caveat to the production-centric framing of iii: <strong>the value of the semantic trace primitive does not depend on scale or infrastructure</strong>. A single student running a C++ numerical benchmark through an AI assistant is already operating inside an informal iii-like loop. The question is whether that loop is legible or invisible.
+          </p>
+          <p class="body-text">
+            Invisible loops are how "the AI decided" becomes an acceptable answer — in coursework and in production alike. When no one can reconstruct the chain from intent to output to verification to decision, accountability disappears. iii's trace model is a refusal of that invisibility, at every scale.
+          </p>
+          <p class="body-text">
+            The educational implication Jose is pointing toward: <strong>teaching students to think in iii terms is teaching them the critical mindset the course needs</strong>, not an infrastructure topic for later. If students internalize the trace structure as the grammar of responsible AI use — what was the intent, what did the model actually do, what verified it, what changed, who owns it — then the C++ specifics and the production-scale specifics follow naturally from the same discipline.
+          </p>
+        </div>
+
+        <div>
+          <p class="body-text" style="margin-bottom:1rem;"><strong>Caveats Jose's framing adds to the production account:</strong></p>
+
+          <div class="moat-box">
+            <span class="moat-icon">⚠ 1</span>
+            <p class="moat-text"><strong>Critics without craftsmanship.</strong> A student (or engineer) who only reads traces without generating enough code to develop intuition cannot judge whether the trace is telling the truth. iii's traceability does not substitute for domain knowledge — it surfaces where domain knowledge is needed.</p>
+          </div>
+
+          <div class="moat-box">
+            <span class="moat-icon">⚠ 2</span>
+            <p class="moat-text"><strong>Traces can be gamed.</strong> A student who generates both the code and the "verification" log with AI has produced a trace that looks compliant but verifies nothing. The same risk exists in production. The verifier must be independent of the model generating the artifact — this is not guaranteed by iii's architecture alone.</p>
+          </div>
+
+          <div class="moat-box">
+            <span class="moat-icon">⚠ 3</span>
+            <p class="moat-text"><strong>Numerical correctness is not traceable by syntax.</strong> In scientific C++ specifically, a trace can record that the model produced a Runge-Kutta step, that the compiler accepted it, and that a test passed — while the integrator is numerically unstable. Traceability records <em>what happened</em>; it does not guarantee <em>what matters</em> was checked. Domain-specific verifiers (Herbie, Verificarlo, convergence rate tests) must be explicitly included in the fabric.</p>
+          </div>
+
+          <div class="moat-box">
+            <span class="moat-icon">⚠ 4</span>
+            <p class="moat-text"><strong>iii is a vocabulary, not a guarantee.</strong> Adopting iii's trace structure as a course artifact format — or a production standard — does not itself produce good agents or good engineers. It produces legible ones. Legibility is the precondition for improvement, not the improvement itself.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCRETE ARTIFACT FORMAT -->
+    <div style="margin-top:2rem;">
+      <div class="section-header" style="border-top:1px solid var(--rule);margin-top:0;">
+        <span class="section-num">—</span>
+        <span class="section-title">What a iii-Structured Student Artifact Looks Like</span>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">iii-style log — per assignment, per session</div>
+        <div class="code-body">
+<span class="c-key">assignment</span>: <span class="c-str">week_06_benchmark_matrix_multiply</span><br>
+<span class="c-key">intent</span>: <span class="c-str">"Benchmark naive vs. cache-aware matrix multiply; measure effect of memory layout."</span><br>
+<span class="c-key">model_used</span>: <span class="c-str">claude-sonnet-4 / GPT-4o</span><br>
+<span class="c-key">prompt_issued</span>: <span class="c-str">"Write a Google Benchmark suite comparing row-major vs. column-major access..."</span><br>
+<span class="c-key">first_output_notes</span>: <span class="c-str">"Used DoNotOptimize, but loop was hoisted. Benchmark measured ~0ns."</span><br>
+<span class="c-key">verifier_runs</span>:<br>
+&nbsp;&nbsp;- <span class="c-str">godbolt.org: confirmed dead code elimination at -O2</span><br>
+&nbsp;&nbsp;- <span class="c-str">perf stat: cache-miss count inconsistent with naive expectation</span><br>
+<span class="c-key">model_failure_mode</span>: <span class="c-str">syntactically correct benchmark measuring a no-op</span> <span class="c-cm">// non-prompted consideration</span><br>
+<span class="c-key">manual_change</span>: <span class="c-str">added ClobberMemory(); restructured loop to prevent hoisting</span><br>
+<span class="c-key">final_decision</span>: <span class="c-str">accepted with revision</span><br>
+<span class="c-key">open_question</span>: <span class="c-str">"Is the bottleneck now compute or memory bandwidth? Cannot tell from wall time alone."</span>
+        </div>
+      </div>
+
+      <p class="body-text" style="margin-top:1.25rem;">
+        This artifact format is directly gradable, cumulative across weeks, and — crucially — forces the student to name the failure mode before they can complete it. By Week 14, the collection of these traces <em>is</em> the student's account of what AI can and cannot be trusted to do in scientific C++. That is the course's real deliverable.
+      </p>
+    </div>
+
+    <div class="highlight-box" style="margin-top:2rem;">
+      <p>"The course should not merely teach students to use AI while learning C++. It should teach them to build evidence that AI-generated scientific code is trustworthy. iii's trace structure is the grammar of that evidence."</p>
+    </div>
+
+  </div>
+
 </div><!-- /page -->
 
 <footer class="footer">
   <div class="footer-note">
-    This handoff is derived from the Agent-Native Systems Colloquium (Spring 2026). iii is treated as an architectural bet, not a guaranteed standard. The argument is intentionally stronger than "AI features will be useful" and intentionally weaker than "LLMs replace software." All consequential deployments require careful attention to permissioning, verification, provenance, human recourse, and liability.
+    This handoff is derived from the Agent-Native Systems Colloquium (Spring 2026) and a Discord discussion on ISC5035 course design (Jose Miranda, Spring 2026). iii is treated as an architectural bet, not a guaranteed standard. Section 06 reflects Jose Miranda's observation that iii's semantic trace model has scope beyond production infrastructure — it is a legibility standard for any human-AI workflow that must be auditable. All consequential deployments (and all graded assignments) require careful attention to permissioning, verification, provenance, human recourse, and liability.
   </div>
   <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);text-align:right;flex-shrink:0;">
-    Strategic Handoff<br>Agentic AI · iii · Capability Fabric
+    Strategic Handoff<br>Agentic AI · iii · Capability Fabric<br>+ ISC5035 Addendum
   </div>
 </footer>
 
