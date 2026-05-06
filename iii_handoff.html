@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iii — Agentic Backend Fabric: Strategic Handoff</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1814;
+    --paper: #f5f2ec;
+    --paper-dark: #ede9e1;
+    --rule: #c8c0b0;
+    --rule-light: #e2ddd5;
+    --accent: #c04a1e;
+    --accent-blue: #1a4a7a;
+    --accent-green: #1a5c3a;
+    --accent-gold: #8a6a00;
+    --muted: #6b6358;
+    --tag-bg: #1a1814;
+    --tag-text: #f5f2ec;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    border-bottom: 3px solid var(--ink);
+    padding: 2rem 4rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 2rem;
+  }
+
+  .masthead-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .masthead h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .masthead-meta {
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  /* SECTION LAYOUT */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 4rem;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    border-top: 2px solid var(--ink);
+    padding-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /* SECTION BLOCK */
+  .section-block {
+    padding: 3.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-block:last-child {
+    border-bottom: none;
+  }
+
+  /* TWO-COL */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+  }
+
+  /* BODY TEXT */
+  .body-text {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.75;
+  }
+
+  .body-text + .body-text {
+    margin-top: 1rem;
+  }
+
+  .body-text strong {
+    font-weight: 600;
+  }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem 1.5rem;
+    margin: 2rem 0;
+    background: rgba(192,74,30,0.04);
+  }
+
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+
+  .pull-quote.blue { border-left-color: var(--accent-blue); background: rgba(26,74,122,0.04); }
+  .pull-quote.blue p { color: var(--accent-blue); }
+  .pull-quote.green { border-left-color: var(--accent-green); background: rgba(26,92,58,0.04); }
+  .pull-quote.green p { color: var(--accent-green); }
+  .pull-quote.gold { border-left-color: var(--accent-gold); background: rgba(138,106,0,0.04); }
+  .pull-quote.gold p { color: var(--accent-gold); }
+
+  /* PRIMITIVES */
+  .primitive-card {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 1.5rem;
+    border-radius: 2px;
+  }
+
+  .primitive-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .primitive-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .primitive-def {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: #c8c0b0;
+    line-height: 1.65;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #0f0e0c;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .code-header {
+    padding: 0.5rem 1rem;
+    background: #1a1814;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: #6b6358;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid #2a2620;
+  }
+
+  .code-body {
+    padding: 1rem 1.25rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.85;
+    color: #c8c0b0;
+    overflow-x: auto;
+  }
+
+  .c-key { color: #8ab4f8; }
+  .c-str { color: #81c995; }
+  .c-cm { color: #5f6368; font-style: italic; }
+
+  /* PRODUCT CARDS */
+  .product-card {
+    border: 1px solid var(--rule);
+    padding: 1.25rem;
+    border-radius: 2px;
+    background: white;
+  }
+
+  .product-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    margin-bottom: 0.6rem;
+  }
+
+  .product-tag.direct { background: var(--ink); color: var(--paper); }
+  .product-tag.adjacent { background: var(--accent-blue); color: white; }
+  .product-tag.adjacent-green { background: var(--accent-green); color: white; }
+  .product-tag.llm { background: var(--accent); color: white; }
+
+  .product-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .product-desc {
+    font-size: 0.84rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .product-diff {
+    font-size: 0.78rem;
+    color: var(--accent);
+    margin-top: 0.5rem;
+    font-weight: 500;
+  }
+
+  /* CONSEQUENCE ITEMS */
+  .consequence-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule-light);
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .consequence-item:last-child { border-bottom: none; }
+
+  .consequence-marker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    padding-top: 0.05rem;
+  }
+
+  .consequence-text {
+    font-size: 0.96rem;
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  .consequence-text strong {
+    font-weight: 600;
+  }
+
+  /* DESIGN LAW */
+  .law-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .law-cell {
+    background: var(--paper);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .law-term {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .law-def {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* STACK DIAGRAM */
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+  }
+
+  .stack-layer {
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .stack-layer-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    flex-shrink: 0;
+    width: 90px;
+    text-align: right;
+  }
+
+  .stack-layer-name { font-weight: 500; }
+  .stack-layer-note { font-size: 0.7rem; opacity: 0.5; margin-left: auto; }
+
+  .l-intent { background: #fff3e0; color: #8a6a00; }
+  .l-model { background: #1a1814; color: #c8c0b0; }
+  .l-capability { background: #e8f0fe; color: #1a4a7a; }
+  .l-state { background: #e6f4ea; color: #1a5c3a; }
+  .l-verify { background: #fce8e6; color: #c04a1e; }
+  .l-trace { background: #f3e8fd; color: #5c2a7a; }
+
+  /* DARK/LIGHT SPLIT */
+  .dark-light-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .split-half {
+    padding: 1.75rem;
+  }
+
+  .split-half.light { background: #f0faf4; }
+  .split-half.dark { background: #1a1814; }
+
+  .split-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .split-half.light .split-label { color: var(--accent-green); }
+  .split-half.dark .split-label { color: var(--accent); }
+
+  .split-item {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    margin-bottom: 0.5rem;
+  }
+
+  .split-half.light .split-item { color: #1a3a24; }
+  .split-half.dark .split-item { color: #c8c0b0; }
+
+  /* AGENDA */
+  .agenda-step {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--rule-light);
+    align-items: start;
+  }
+
+  .agenda-step:last-child { border-bottom: none; }
+
+  .agenda-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    padding-top: 0.1rem;
+  }
+
+  .agenda-content {}
+  .agenda-title { font-weight: 600; margin-bottom: 0.3rem; }
+  .agenda-text { font-size: 0.9rem; font-weight: 300; color: var(--muted); line-height: 1.65; }
+
+  /* HORIZONTAL RULE */
+  .h-rule {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    border-top: 3px solid var(--ink);
+    padding: 1.5rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    max-width: 60ch;
+    line-height: 1.6;
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 1.5rem 2rem;
+    margin: 1.5rem 0;
+    border-radius: 2px;
+  }
+
+  .highlight-box p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .moat-box {
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .moat-icon {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 0.1rem;
+  }
+
+  .moat-text {
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 900px) {
+    .masthead, .page, .footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .two-col, .three-col, .dark-light-split, .law-grid { grid-template-columns: 1fr; }
+    .masthead { grid-template-columns: 1fr; }
+    .masthead-meta { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div>
+    <div class="masthead-label">Strategic Handoff — Autonomous Agentic AI</div>
+    <h1><em>iii</em> &amp; the Capability Fabric<br>That Governs Agents</h1>
+  </div>
+  <div class="masthead-meta">
+    <div>Spring 2026</div>
+    <div>Strategic · Technical · Consequential</div>
+    <div>Source: Agent-Native Systems Colloquium</div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════════════
+       01 · WHAT IS iii
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">What Is iii</span>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p class="body-text">
+          <strong>iii is an architectural bet.</strong> It is a backend orchestration system that attempts to unify ordinary backend services and AI agents under the same set of primitives — so that an agent is not an alien sidecar bolted onto your production stack, but simply another governed worker inside it.
+        </p>
+        <p class="body-text" style="margin-top:1rem;">
+          The name "iii" refers to its three core primitives. Every entity in the system — whether a traditional microservice, a scheduled job, an ML pipeline, or an LLM-powered agent — speaks the same three-word language.
+        </p>
+        <div class="pull-quote" style="margin-top:1.5rem;">
+          <p>"iii is not the model. It is not the app. It is not the product strategy. It is the coordination substrate that exposes what the organization can do."</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="stack">
+          <div class="stack-layer l-intent">
+            <span class="stack-layer-label">Input</span>
+            <span class="stack-layer-name">Intent / Unstructured Context</span>
+            <span class="stack-layer-note">docs, events, images, prose</span>
+          </div>
+          <div class="stack-layer l-model">
+            <span class="stack-layer-label">Interpret</span>
+            <span class="stack-layer-name">Model (LLM)</span>
+            <span class="stack-layer-note">plan, transform, classify</span>
+          </div>
+          <div class="stack-layer l-capability">
+            <span class="stack-layer-label">Act</span>
+            <span class="stack-layer-name">Capability Registry (iii)</span>
+            <span class="stack-layer-note">functions · triggers · workers</span>
+          </div>
+          <div class="stack-layer l-state">
+            <span class="stack-layer-label">Persist</span>
+            <span class="stack-layer-name">State</span>
+            <span class="stack-layer-note">write, read, handoff</span>
+          </div>
+          <div class="stack-layer l-verify">
+            <span class="stack-layer-label">Check</span>
+            <span class="stack-layer-name">Verifier / Approval Gate</span>
+            <span class="stack-layer-note">policy, test, human</span>
+          </div>
+          <div class="stack-layer l-trace">
+            <span class="stack-layer-label">Record</span>
+            <span class="stack-layer-name">Semantic Trace</span>
+            <span class="stack-layer-note">why · what · who approved</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THREE PRIMITIVES -->
+    <div class="three-col" style="margin-top:2.5rem;">
+      <div class="primitive-card">
+        <div class="primitive-label">Primitive I</div>
+        <div class="primitive-name">Function</div>
+        <div class="primitive-def">A named unit of work with declared inputs, outputs, owner, risk level, and permission requirements. Examples: <em>validate_order</em>, <em>issue_refund</em>, <em>summarize_document</em>, <em>request_human_approval</em>.</div>
+      </div>
+      <div class="primitive-card">
+        <div class="primitive-label">Primitive II</div>
+        <div class="primitive-name">Trigger</div>
+        <div class="primitive-def">Something that causes work to start. Can be an HTTP request, a schedule, a queue message, a state change, a user action, a stream event, or a direct call. The same trigger model applies to cron jobs and agent handoffs alike.</div>
+      </div>
+      <div class="primitive-card">
+        <div class="primitive-label">Primitive III</div>
+        <div class="primitive-name">Worker</div>
+        <div class="primitive-def">Any process that connects to the fabric and registers capabilities. A TypeScript service is a worker. A Python ML pipeline is a worker. An LLM-powered agent is a worker. All governed by the same rules.</div>
+      </div>
+    </div>
+
+    <!-- BEFORE / AFTER CODE -->
+    <div class="code-block" style="margin-top:2.5rem;">
+      <div class="code-header">before · after — same workflow, two paradigms</div>
+      <div class="code-body">
+<span class="c-cm">// Before: a small product made of integration glue — two separate state machines</span><br>
+<span class="c-key">support_ticket_to_jira_app</span>:<br>
+&nbsp;&nbsp;<span class="c-str">poll</span> support_api &nbsp;&nbsp;<span class="c-cm">// one loop</span><br>
+&nbsp;&nbsp;<span class="c-str">parse</span> ticket_thread &nbsp;&nbsp;<span class="c-cm">// guesswork</span><br>
+&nbsp;&nbsp;<span class="c-str">call</span> llm_classifier &nbsp;&nbsp;<span class="c-cm">// sidecar</span><br>
+&nbsp;&nbsp;<span class="c-str">retry</span> jira_api &nbsp;&nbsp;<span class="c-cm">// its own retry state</span><br>
+&nbsp;&nbsp;<span class="c-str">log</span> somewhere_else &nbsp;&nbsp;<span class="c-cm">// orphaned</span><br>
+<br>
+<span class="c-cm">// After: composition inside shared backend fabric — one state machine</span><br>
+<span class="c-key">trigger</span>: <span class="c-str">support::ticket_created</span><br>
+<span class="c-key">functions</span>:<br>
+&nbsp;&nbsp;- <span class="c-str">support::read_thread</span><br>
+&nbsp;&nbsp;- <span class="c-str">llm::classify_bug</span><br>
+&nbsp;&nbsp;- <span class="c-str">jira::create_issue</span><br>
+&nbsp;&nbsp;- <span class="c-str">human::review_if_uncertain</span><br>
+&nbsp;&nbsp;- <span class="c-str">support::reply_with_link</span><br>
+<span class="c-key">state</span>: <span class="c-str">ticket_to_jira_mapping</span><br>
+<span class="c-key">trace</span>: <span class="c-str">one chain, visible end to end</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       02 · WHY IT'S IMPORTANT
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Why It's Important</span>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p class="body-text">
+          The problem iii solves is <strong>the two-state-machine problem</strong>. Today's agent demos have a private little loop — prompt, tool list, memory hack, retries, backend API calls, and logs somewhere else — and then the actual backend has its own APIs, queues, cron jobs, retries, state, and observability. These are two separate systems pretending to be one.
+        </p>
+        <p class="body-text">
+          As agents become <em>production actors</em> — not demos but real processes that issue refunds, update records, deploy code, and send legal communications — this fragmentation becomes an operational liability. Without a unified fabric, every new agent workflow requires bespoke scaffolding, and every incident requires archaeology across disconnected logs.
+        </p>
+        <p class="body-text">
+          iii's contribution is to collapse that gap: the agent's tools <em>are</em> backend functions; its memory <em>is</em> backend state; its handoffs <em>are</em> triggers; its execution is traced like everything else.
+        </p>
+      </div>
+
+      <div>
+        <p class="body-text" style="margin-bottom:1rem;"><strong>Why this matters at each layer of the stack:</strong></p>
+
+        <div class="moat-box">
+          <span class="moat-icon">Ops</span>
+          <p class="moat-text"><strong>Operational clarity.</strong> One observability model for agents and services means one set of dashboards, one incident runbook, and one source of truth for what happened.</p>
+        </div>
+
+        <div class="moat-box">
+          <span class="moat-icon">Sec</span>
+          <p class="moat-text"><strong>Permission lattices.</strong> Every function call from an agent inherits the same authorization model as every other system call. There is no "agent bypass" of production controls.</p>
+        </div>
+
+        <div class="moat-box">
+          <span class="moat-icon">Prod</span>
+          <p class="moat-text"><strong>Composability.</strong> A governed capability registry means new agents can discover and safely call existing capabilities without reimplementing integrations. Intelligence compounds on top of the fabric.</p>
+        </div>
+
+        <div class="moat-box">
+          <span class="moat-icon">Risk</span>
+          <p class="moat-text"><strong>Blast radius control.</strong> Irreversible actions require declared approval gates. Budget limits. Tenant isolation. Prompt-injection boundaries. These are properties of the fabric, not per-agent hacks.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:2rem;">
+      <p>"The next moat is not a chatbot. It is a governed capability fabric: context, permissions, tools, verifiers, traces, and the right to act."</p>
+    </div>
+
+    <!-- PERMISSION LATTICE EXAMPLE -->
+    <div class="code-block">
+      <div class="code-header">example · permission lattice for an agent worker</div>
+      <div class="code-body">
+<span class="c-key">agent</span>: <span class="c-str">refund_assistant</span><br>
+<span class="c-key">tenant_scope</span>: <span class="c-str">current_customer_only</span><br>
+<span class="c-key">can_call</span>:<br>
+&nbsp;&nbsp;- <span class="c-str">orders::lookup</span><br>
+&nbsp;&nbsp;- <span class="c-str">payments::calculate_refund</span><br>
+&nbsp;&nbsp;- <span class="c-str">policy::check_refund_window</span><br>
+&nbsp;&nbsp;- <span class="c-str">human::request_approval</span><br>
+<span class="c-key">can_call_with_approval</span>:<br>
+&nbsp;&nbsp;- <span class="c-str">payments::issue_refund</span> &nbsp;<span class="c-cm">// if amount &gt; $100</span><br>
+<span class="c-key">cannot_call</span>:<br>
+&nbsp;&nbsp;- <span class="c-str">users::export_all</span><br>
+&nbsp;&nbsp;- <span class="c-str">admin::delete_account</span><br>
+&nbsp;&nbsp;- <span class="c-str">payments::issue_refund_without_trace</span>
+      </div>
+    </div>
+
+    <div class="pull-quote" style="margin-top:1.5rem;">
+      <p>"A universal capability fabric without a permission lattice is not architecture. It is an incident report waiting for a timestamp."</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       03 · ALTERNATIVES, PRODUCTS, RELATED SYSTEMS
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Alternatives, Products &amp; Related Systems</span>
+    </div>
+
+    <p class="body-text" style="margin-bottom:0.5rem;">iii names a <em>category</em> — agentic backend fabrics — not just a single product. The pressure is real regardless of which system wins. Below is the competitive map.</p>
+    <p class="body-text" style="margin-bottom:2rem; color:var(--muted);">Tagged by role: <span style="background:var(--ink);color:var(--paper);padding:0.1rem 0.4rem;font-family:monospace;font-size:0.7rem;border-radius:2px;">DIRECT</span> — same thesis &nbsp; <span style="background:var(--accent-blue);color:white;padding:0.1rem 0.4rem;font-family:monospace;font-size:0.7rem;border-radius:2px;">ORCHESTRATION</span> — backend workflow &nbsp; <span style="background:var(--accent-green);color:white;padding:0.1rem 0.4rem;font-family:monospace;font-size:0.7rem;border-radius:2px;">AGENT FRAMEWORK</span> — LLM agent layer &nbsp; <span style="background:var(--accent);color:white;padding:0.1rem 0.4rem;font-family:monospace;font-size:0.7rem;border-radius:2px;">INFRA</span> — compute / primitives</p>
+
+    <div class="three-col">
+
+      <div class="product-card">
+        <div class="product-tag direct">Direct</div>
+        <div class="product-name">Inngest</div>
+        <div class="product-desc">The likely origin of "iii." Durable functions-as-a-service with event-driven triggers, retries, and step-level observability. Designed to make background jobs and AI agents first-class equals in the same system.</div>
+        <div class="product-diff">→ Closest embodiment of the iii thesis</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag adjacent">Orchestration</div>
+        <div class="product-name">Temporal</div>
+        <div class="product-desc">Durable execution platform. Workflows written as code that survive failures, restarts, and long pauses. Strong in enterprise; increasingly used as the backbone for agent workflows that need ironclad durability guarantees.</div>
+        <div class="product-diff">→ More ops-heavy; stronger durability story</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag direct">Direct</div>
+        <div class="product-name">Trigger.dev</div>
+        <div class="product-desc">Open-source background jobs platform built around the same trigger → function → worker model. Explicit AI agent support; designed for TypeScript-first teams who want self-hosted capability fabric.</div>
+        <div class="product-diff">→ Open-source alternative; strong DX overlap</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag adjacent">Orchestration</div>
+        <div class="product-name">Prefect / Dagster</div>
+        <div class="product-desc">Data pipeline orchestration platforms. Handle observability, retries, scheduling, and dependency graphs for data workflows. Adding LLM steps; converging toward the agentic fabric use case from the data engineering side.</div>
+        <div class="product-diff">→ Strongest where data pipelines dominate</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag adjacent">Orchestration</div>
+        <div class="product-name">AWS Step Functions</div>
+        <div class="product-desc">Managed state machine orchestration from AWS. Integrates natively with Lambda, SQS, Bedrock, and hundreds of AWS services. High operational trust but low developer ergonomics and significant cloud lock-in.</div>
+        <div class="product-diff">→ Enterprise default; lowest DX ceiling</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag adjacent-green">Agent Framework</div>
+        <div class="product-name">LangGraph</div>
+        <div class="product-desc">Graph-based agent orchestration from LangChain. Models multi-step agent reasoning as stateful graph traversal. Focused on the model reasoning loop rather than full backend unification.</div>
+        <div class="product-diff">→ LLM-first; not a backend fabric replacement</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag adjacent-green">Agent Framework</div>
+        <div class="product-name">AutoGen / AG2</div>
+        <div class="product-desc">Microsoft Research's multi-agent framework. Emphasizes agent-to-agent conversation, specialized sub-agent roles, and human-in-the-loop handoffs. Strong research pedigree; maturing toward production use.</div>
+        <div class="product-diff">→ Multi-agent conversations; less backend depth</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag adjacent-green">Agent Framework</div>
+        <div class="product-name">CrewAI</div>
+        <div class="product-desc">Role-based multi-agent orchestration. Agents are assigned explicit personas, tools, and goals; they coordinate via defined workflows. Focused on task decomposition rather than backend fabric integration.</div>
+        <div class="product-diff">→ Ease of use; shallower infra story</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag llm">Infra</div>
+        <div class="product-name">Modal</div>
+        <div class="product-desc">Serverless compute for ML workloads. Functions deploy instantly with GPU access, secrets management, and scheduling built in. A substrate layer agents can run on; not an orchestration fabric itself.</div>
+        <div class="product-diff">→ Compute layer; pairs with orchestrators</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag llm">Infra</div>
+        <div class="product-name">Cloudflare (Workers + Queues + DO)</div>
+        <div class="product-desc">Durable Objects give stateful workers at the edge. Combined with Queues and Workers AI, Cloudflare is quietly building its own capability fabric — globally distributed, with tight permission primitives.</div>
+        <div class="product-diff">→ Edge-first architecture; different tradeoffs</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag llm">Infra</div>
+        <div class="product-name">Anthropic MCP</div>
+        <div class="product-desc">Model Context Protocol. An open standard for exposing tools and resources to LLM agents in a structured, permissioned way. Functions as the <em>protocol layer</em> that a capability fabric like iii could implement natively.</div>
+        <div class="product-diff">→ Protocol standard, not an orchestrator</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-tag adjacent">Orchestration</div>
+        <div class="product-name">n8n / Zapier / Make</div>
+        <div class="product-desc">Visual workflow automation tools. Adding AI nodes; widely adopted by non-engineers. Represent the low-code end of the capability fabric spectrum — strong breadth of integrations, weak in permissioning and audit depth.</div>
+        <div class="product-diff">→ Accessible but governance-shallow</div>
+      </div>
+
+    </div>
+
+    <div class="pull-quote blue" style="margin-top:2rem;">
+      <p>"iii may win or not. The pressure is real either way: agents, workflow engines, APIs, queues, cron jobs, state stores, and observability cannot remain separate forever if agents become production actors."</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       04 · WHAT THIS ENABLES
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">What This Enables — Obvious Consequences</span>
+    </div>
+
+    <p class="body-text" style="margin-bottom:2rem;">When semantic cognition connects to governed capabilities at scale, two futures become plausible simultaneously. The fabric itself is neutral; the order of deployment is not.</p>
+
+    <div class="dark-light-split">
+      <div class="split-half light">
+        <div class="split-label">↑ Optimistic Case — Humane Leverage</div>
+        <div class="split-item">Government forms and bureaucratic navigation become less adversarial — agents that understand intent can route, translate, and pre-fill.</div>
+        <div class="split-item">Healthcare navigation becomes less cruel — agents that know policy, records, and appeals paths reduce the suffering tax on patients.</div>
+        <div class="split-item">Small organizations get expert-grade operations — capability fabrics democratize what previously required expensive specialists.</div>
+        <div class="split-item">Engineers inherit institutional memory instead of Slack archaeology — semantic traces become queryable organizational knowledge.</div>
+        <div class="split-item">Compliance evidence stops being ritual theater — verifier chains produce audit trails automatically as a byproduct of correct operation.</div>
+        <div class="split-item">Support teams catch incidents earlier — agents monitoring operations can detect anomalies before humans notice the symptom.</div>
+        <div class="split-item">Trapped knowledge becomes useful action — documents, policies, contracts, and tacit procedures become executable.</div>
+      </div>
+      <div class="split-half dark">
+        <div class="split-label">↓ Dark Case — Bureaucratic Violence at Machine Speed</div>
+        <div class="split-item" style="color:#e05545;">Automated denial — rejection decisions previously constrained by human bandwidth now scale without limit.</div>
+        <div class="split-item">Worker surveillance — capability fabrics that monitor output can trivially monitor people; the infrastructure is identical.</div>
+        <div class="split-item">Opaque scoring — agents that make hiring, credit, and housing decisions can produce outcomes with no legible reasoning chain.</div>
+        <div class="split-item">Deskilling — workflows that remove judgment from humans may also remove the ability to exercise it when the system fails.</div>
+        <div class="split-item">Centralized control — organizations that build large private capability registries accrue power that is difficult to contest.</div>
+        <div class="split-item" style="color:#e05545;">"The agent decided" — used as a liability shield, removing accountability from every consequential outcome.</div>
+        <div class="split-item">Efficient cruelty — every institution becomes faster at extracting rent, enforcing terms, and hiding the reason for decisions.</div>
+      </div>
+    </div>
+
+    <!-- DESIGN LAW -->
+    <div style="margin-top:2.5rem;">
+      <div class="section-header" style="border-top:1px solid var(--rule); margin-top:0;">
+        <span class="section-num">—</span>
+        <span class="section-title">Humane Constraints That Must Be Built In</span>
+      </div>
+      <div class="law-grid">
+        <div class="law-cell">
+          <div class="law-term">Recourse</div>
+          <div class="law-def">People affected by consequential decisions must have a path to challenge, correct, and understand them. The fabric must make this traceable, not optional.</div>
+        </div>
+        <div class="law-cell">
+          <div class="law-term">Proportionality</div>
+          <div class="law-def">Agent autonomy should shrink as stakes, irreversibility, and asymmetry of power increase. High-consequence actions require human approval gates — declared, not bolted on.</div>
+        </div>
+        <div class="law-cell">
+          <div class="law-term">Dignity</div>
+          <div class="law-def">Systems should reduce drudgery without reducing people to monitored components inside an optimization machine. Automate paperwork before automating judgment.</div>
+        </div>
+        <div class="law-cell">
+          <div class="law-term">Accountability</div>
+          <div class="law-def">The organization remains responsible. "The AI did it" should have no legal, moral, or operational force. The semantic trace is evidence, not an excuse.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEVER FULLY AUTONOMOUS -->
+    <div class="pull-quote" style="margin-top:2rem;">
+      <p>"Anything that materially affects healthcare, employment, housing, credit, legal status, education access, public benefits, personal freedom, or essential services should require explanation, appeal, audit, and accountable human ownership."</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       05 · WHAT TO DO MONDAY MORNING
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Agenda — What To Do With This</span>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="agenda-step">
+          <span class="agenda-num">01</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Inventory capabilities, not just APIs</div>
+            <div class="agenda-text">Map everything the organization can do: read a record, issue a refund, generate a report, deploy code, send email, request approval, escalate risk. For each, write the contract: inputs, outputs, owner, permissions, risks, examples, verifiers.</div>
+          </div>
+        </div>
+        <div class="agenda-step">
+          <span class="agenda-num">02</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Build verifier-rich workflows before adding autonomy</div>
+            <div class="agenda-text">Ask: what proves success? What catches failure? What is reversible? What needs human approval? What is the blast radius? What trace will exist six months later when someone asks why this happened?</div>
+          </div>
+        </div>
+        <div class="agenda-step">
+          <span class="agenda-num">03</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Pick humane leverage points first</div>
+            <div class="agenda-text">Automate drudgery, navigation, error detection, translation, paperwork, and memory <em>before</em> automating punishment, denial, surveillance, or coercion. The order matters because incentives will otherwise choose the cruel path first.</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="agenda-step">
+          <span class="agenda-num">04</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Fix backend hygiene — it is now an intelligence ceiling</div>
+            <div class="agenda-text">Bad APIs, undocumented side effects, ambiguous ownership, inconsistent state, weak permissions, and missing logs were already expensive. In the agent era, they become direct ceilings on what intelligence can safely do on top of your systems.</div>
+          </div>
+        </div>
+        <div class="agenda-step">
+          <span class="agenda-num">05</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Evaluate iii-category tools against your stack</div>
+            <div class="agenda-text">Inngest, Temporal, Trigger.dev, and AWS Step Functions all embody the same pressure at different points on the spectrum. Pick based on: language fit, durability requirements, self-hosting preference, existing cloud commitments, and governance depth.</div>
+          </div>
+        </div>
+        <div class="agenda-step">
+          <span class="agenda-num">06</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Treat accountability as a design constraint, not a review step</div>
+            <div class="agenda-text">Institutions that cannot explain their own decisions should not give those decisions to agents. If you cannot audit a human decision today, an agent will make the same decision faster and at greater scale — with less recourse.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINAL SYNTHESIS -->
+    <div class="highlight-box" style="margin-top:2.5rem;">
+      <p>"The future of software is the reorganization of institutions around executable context, governed capabilities, and verifier-bounded agency. The winning systems will not be the ones that let agents do anything. They will be the ones that let agents do useful things inside strong boundaries."</p>
+    </div>
+
+    <div class="pull-quote green" style="margin-top:1.5rem;">
+      <p>"Prosperity comes from reducing coordination costs and converting trapped knowledge into useful action. The goal is not frictionless automation. It is humane leverage — removing needless friction while preserving judgment, dignity, and recourse where consequences are serious."</p>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer class="footer">
+  <div class="footer-note">
+    This handoff is derived from the Agent-Native Systems Colloquium (Spring 2026). iii is treated as an architectural bet, not a guaranteed standard. The argument is intentionally stronger than "AI features will be useful" and intentionally weaker than "LLMs replace software." All consequential deployments require careful attention to permissioning, verification, provenance, human recourse, and liability.
+  </div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);text-align:right;flex-shrink:0;">
+    Strategic Handoff<br>Agentic AI · iii · Capability Fabric
+  </div>
+</footer>
+
+</body>
+</html>
